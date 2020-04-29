@@ -84,6 +84,26 @@ app.layout = html.Div([
         	step=0.01,
         	value=0.05),
     	#
+    	html.Label('Maturity'),
+    	dcc.Slider(
+    		id='T',
+        	min=1,
+        	max=5,
+        	marks={i: '{}'.format(i) for i in range(6)},
+        	step=0.25,
+        	updatemode='drag',
+        	value=1),
+    	#
+    	html.Div([
+        	html.Div([
+            	html.Label('Transaction costs'),
+            	dcc.Input(id="TC", value=0, type='number')
+        	], className="six columns"),
+       		html.Div([
+       			]
+        	, className="six columns"),
+    	], className="row"),
+    	#
         dcc.Dropdown(
             id='x-varname',
             options=[{'label': i, 'value': i} for i in indicators],
