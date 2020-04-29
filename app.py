@@ -183,5 +183,20 @@ def update_graph(x_varname, y_varname, hoverData):
         )
     }
 
+@app.callback(Output('updateDrift', 'children'),
+              [Input('mu', 'value')])
+def display_value(value):
+    return 'Selected value: {}'.format(value)
+
+@app.callback(Output('updateVol', 'children'),
+			  [Input('sigma', 'value')])
+def display_value2(value):
+    return 'Selected value: {}'.format(value)
+
+@app.callback(Output('updateRf', 'children'),
+			  [Input('Rf', 'value')])
+def display_value3(value):
+    return 'Selected value: {}'.format(value)
+
 if __name__ == '__main__':
     app.run_server(debug=True)
