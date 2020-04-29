@@ -27,9 +27,13 @@ indicator_key = df0.drop_duplicates('indicator_short').set_index('indicator_shor
 
 
 top_markdown_text = '''
-### Call/Put Replication Strategy Tool
-#### Michel Vanderhulst - 04/29/2020
-Master's thesis - Louvain School of Management 
+### Dash Tutorial - Sustainable Development Goals
+#### Zane Rankin, 2/17/2019
+The [Institute for Health Metrics and Evaluation](http://www.healthdata.org/) publishes estimates for 41 health-related SDG indicators for 
+195 countries and territories.  
+I downloaded the [data](http://ghdx.healthdata.org/record/global-burden-disease-study-2017-gbd-2017-health-related-sustainable-development-goals-sdg) 
+for a tutorial on Medium and Github   
+**Indicators are scaled 0-100, with 0 being worst observed (e.g. highest mortality) and 100 being best.**  
 '''
 
 app.layout = html.Div([
@@ -37,9 +41,9 @@ app.layout = html.Div([
     # HEADER
     dcc.Markdown(children=top_markdown_text),
 
-    # LEFT - Asset parameters
+    # LEFT - CHOROPLETH MAP
     html.Div([
-    	dcc.Dropdown(
+        dcc.Dropdown(
             id='x-varname',
             options=[{'label': i, 'value': i} for i in indicators],
             value='SDG Index'
@@ -47,97 +51,11 @@ app.layout = html.Div([
         dcc.Markdown(id='x-description'),
         dcc.Graph(id='county-choropleth'),
         dcc.Markdown('*Hover over map to select country for plots*'),
-        
-    	html.Label("Call or Put:"),
-        dcc.Dropdown(
-            id='CallOrPut',
-            options=[{'label':'European Call option', 'value':"Call"},
-            		 {'label':'European Put option', 'value':"Put"}],
-            value='Call'),
-
-        html.Div([
-        	html.Div([
-            	html.Label('Spot price'),
-            	dcc.Input(id="S", value=100, type='number')
-        	], className="six columns"),
-
-       		html.Div([
-            	html.Label("Strike"),
-            	dcc.Input(id="K", value=100, type='number')
-        	], className="six columns"),
-    	], className="row"),
-
-        html.Label('Drift'),
-        html.Div(id='updateDrift'),#, style={'margin-top':20}),
-    	dcc.Slider(
-    		id='mu',
-        	min=-0.30,
-        	max=0.30,
-        	value=0.10,
-        	step=0.01),
-
-        html.Label('Volatility'),
-        html.Div(id='updateVol'),#, style={'margin-top':20}),
-    	dcc.Slider(
-    		id='sigma',
-        	min=0.15,
-        	max=0.50,
-        	step=0.01,
-        	value=0.10),
-       
-        html.Label('Risk-free rate'),
-        html.Div(id='updateRf'),#, style={'margin-top':20}),
-    	dcc.Slider(
-    		id='Rf',
-        	min=0,
-        	max=0.1,
-        	step=0.01,
-        	value=0.05),
-        
-        html.Label('Maturity'),
-    	dcc.Slider(
-    		id='T',
-        	min=1,
-        	max=5,
-        	marks={i: '{}'.format(i) for i in range(6)},
-        	step=0.25,
-        	updatemode='drag',
-        	value=1),
-
-    	html.Div([
-        	html.Div([
-            	html.Label('Transaction costs'),
-            	dcc.Input(id="TC", value=0, type='number')
-        	], className="six columns"),
-
-       		html.Div([
-       			]
-        	, className="six columns"),
-    	], className="row"),
-
-
-    dcc.Checklist(
-       	options=[
-       		{'label': 'Fixed TC', 'value': 'FTC'},
-        	{'label': 'Proportional TC', 'value': 'PTC'}], 
-        labelStyle={'display': 'inline-block'})	
 
     ], style={'float': 'left', 'width': '39%'}),
 
     # RIGHT - SCATTERPLOT
     html.Div([
-    	html.Div([
-        	html.Div([
-            	html.Label('Discretization step'),
-            	dcc.Input(id="dt", value=0.01, type='number')
-        	], className="six columns"),
-
-       		html.Div([
-            	html.Label("Portfolio rebalancing"),
-            	dcc.Input(id="dt_p", value=1, type='number')
-        	], className="six columns"),
-    	], className="row"),
-        
         dcc.Dropdown(
             id='y-varname',
             options=[{'label': i, 'value': i} for i in indicators],
@@ -148,6 +66,7 @@ app.layout = html.Div([
     ], style={'float': 'right', 'width': '59%'}),
 
 ])
+
 
 @app.callback(
     Output('x-description', 'children'),
@@ -190,7 +109,6 @@ def update_map(x_varname):
     [Input('x-varname', 'value'),
      Input('y-varname', 'value'),
      Input('county-choropleth', 'hoverData'),])
-
 def update_graph(x_varname, y_varname, hoverData):
     if hoverData is None:  # Initialize before any hovering
         location_name = 'Nigeria'
@@ -225,23 +143,6 @@ def update_graph(x_varname, y_varname, hoverData):
             hovermode='closest'
         )
     }
-
-
-@app.callback(Output('updateDrift', 'children'),
-              [Input('mu', 'value')])
-def display_value(value):
-    return 'Selected value: {}'.format(value)
-
-@app.callback(Output('updateVol', 'children'),
-			  [Input('sigma', 'value')])
-def display_value2(value):
-    return 'Selected value: {}'.format(value)
-
-@app.callback(Output('updateRf', 'children'),
-			  [Input('Rf', 'value')])
-def display_value3(value):
-    return 'Selected value: {}'.format(value)
-
 
 if __name__ == '__main__':
     app.run_server(debug=True)
