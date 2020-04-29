@@ -56,6 +56,34 @@ app.layout = html.Div([
             	dcc.Input(id="K", value=100, type='number')
         	], className="six columns"),
     	], className="row"),
+    	#
+    	html.Label('Drift'),
+        html.Div(id='updateDrift'),
+    	dcc.Slider(
+    		id='mu',
+        	min=-0.30,
+        	max=0.30,
+        	value=0.10,
+        	step=0.01),
+    	#
+        html.Label('Volatility'),
+        html.Div(id='updateVol'),
+    	dcc.Slider(
+    		id='sigma',
+        	min=0.15,
+        	max=0.50,
+        	step=0.01,
+        	value=0.10),
+        #
+        html.Label('Risk-free rate'),
+        html.Div(id='updateRf'),
+    	dcc.Slider(
+    		id='Rf',
+        	min=0,
+        	max=0.1,
+        	step=0.01,
+        	value=0.05),
+    	#
         dcc.Dropdown(
             id='x-varname',
             options=[{'label': i, 'value': i} for i in indicators],
