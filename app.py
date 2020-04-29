@@ -93,20 +93,9 @@ app.layout = html.Div([
         	step=0.25,
         	updatemode='drag',
         	value=1),
-    	# 
-    	# Used for spacing
-    	html.Label(""),
     	#
-    	#
-    	html.Div([
-        	html.Div([
-            	html.Label('Transaction costs'),
-            	dcc.Input(id="TC", value=0, type='number')
-        	], className="six columns"),
-       		html.Div([
-       			]
-        	, className="six columns"),
-    	], className="row"),
+    	html.Label('Transaction costs'), 
+    	dcc.Input(id="TC", value=0, type='number'),
     	#
         dcc.Dropdown(
             id='x-varname',
