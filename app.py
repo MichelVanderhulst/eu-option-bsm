@@ -93,7 +93,11 @@ app.layout = html.Div([
         	step=0.25,
         	updatemode='drag',
         	value=1),
-    	
+    	# 
+    	# Used for spacing
+    	html.Label(""),
+    	#
+    	#
     	html.Div([
         	html.Div([
             	html.Label('Transaction costs'),
