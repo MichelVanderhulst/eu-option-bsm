@@ -3,7 +3,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 #import pandas as pd
-import plotly.graph_objs as go
+#import plotly.graph_objs as go
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -127,7 +127,7 @@ app.layout = html.Div([
             	html.Label("Portfolio rebalancing"),
             	dcc.Input(id="dt_p", value=1, type='number')
         	], className="six columns"),
-    	], className="row"),
+    	], className="row")#,
         
     #     dcc.Dropdown(
     #         id='y-varname',
@@ -139,10 +139,6 @@ app.layout = html.Div([
     ], style={'float': 'right', 'width': '59%'}),
 
 ])
-
-
-
-
 
 # @app.callback(
 #     Output('x-description', 'children'),
@@ -236,11 +232,6 @@ def display_value2(value):
 			  [Input('Rf', 'value')])
 def display_value3(value):
     return 'Selected value: {}'.format(value)
-
-
-
-
-
 
 
 if __name__ == '__main__':
