@@ -98,6 +98,13 @@ app.layout = html.Div([
     	html.Label('Transaction costs'), 
     	dcc.Input(id="TC", value=0, type='number'),
     	#
+    	dcc.Checklist(
+       		options=[
+       			{'label': 'Fixed TC', 'value': 'FTC'},
+        		{'label': 'Proportional TC', 'value': 'PTC'}], 
+        	value=['FTC', 'PTC'],
+        	labelStyle={'display': 'inline-block'}),	
+    	#
         dcc.Dropdown(
             id='x-varname',
             options=[{'label': i, 'value': i} for i in indicators],
