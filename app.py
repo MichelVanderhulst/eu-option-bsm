@@ -130,13 +130,13 @@ app.layout = html.Div([
         	], className="six columns"),
     	], className="row"),
         
-        dcc.Dropdown(
-            id='y-varname',
-            options=[{'label': i, 'value': i} for i in indicators],
-            value='Under-5 Mort'
-        ),
-        dcc.Markdown(id='y-description'),
-        dcc.Graph(id='scatterplot'),
+    #     dcc.Dropdown(
+    #         id='y-varname',
+    #         options=[{'label': i, 'value': i} for i in indicators],
+    #         value='Under-5 Mort'
+    #     ),
+    #     dcc.Markdown(id='y-description'),
+    #     dcc.Graph(id='scatterplot'),
     ], style={'float': 'right', 'width': '59%'}),
 
 ])
@@ -145,82 +145,82 @@ app.layout = html.Div([
 
 
 
-@app.callback(
-    Output('x-description', 'children'),
-    [Input('x-varname', 'value')])
-def x_description(i):
-    return f'{indicator_key[i]}'
+# @app.callback(
+#     Output('x-description', 'children'),
+#     [Input('x-varname', 'value')])
+# def x_description(i):
+#     return f'{indicator_key[i]}'
 
 
-@app.callback(
-    Output('y-description', 'children'),
-    [Input('y-varname', 'value')])
-def y_description(i):
-    return f'{indicator_key[i]}'
+# @app.callback(
+#     Output('y-description', 'children'),
+#     [Input('y-varname', 'value')])
+# def y_description(i):
+#     return f'{indicator_key[i]}'
 
 
-@app.callback(
-    Output('county-choropleth', 'figure'),
-    [Input('x-varname', 'value')])
-def update_map(x_varname):
-    return dict(
-        data=[dict(
-            locations=df['ihme_loc_id'],
-            z=df[x_varname],
-            text=df['location_name'],
-            autocolorscale=False,
-            reversescale=True,
-            type='choropleth',
-        )],
-        layout=dict(
-            title=x_varname,
-            height=400,
-            margin={'l': 0, 'b': 0, 't': 40, 'r': 0},
-            geo=dict(showframe=False,
-                     projection={'type': 'Mercator'}))
-    )
+# @app.callback(
+#     Output('county-choropleth', 'figure'),
+#     [Input('x-varname', 'value')])
+# def update_map(x_varname):
+#     return dict(
+#         data=[dict(
+#             locations=df['ihme_loc_id'],
+#             z=df[x_varname],
+#             text=df['location_name'],
+#             autocolorscale=False,
+#             reversescale=True,
+#             type='choropleth',
+#         )],
+#         layout=dict(
+#             title=x_varname,
+#             height=400,
+#             margin={'l': 0, 'b': 0, 't': 40, 'r': 0},
+#             geo=dict(showframe=False,
+#                      projection={'type': 'Mercator'}))
+#     )
 
 
-@app.callback(
-    Output('scatterplot', 'figure'),
-    [Input('x-varname', 'value'),
-     Input('y-varname', 'value'),
-     Input('county-choropleth', 'hoverData'),])
+# @app.callback(
+#     Output('scatterplot', 'figure'),
+#     [Input('x-varname', 'value'),
+#      Input('y-varname', 'value'),
+#      Input('county-choropleth', 'hoverData'),])
 
-def update_graph(x_varname, y_varname, hoverData):
-    if hoverData is None:  # Initialize before any hovering
-        location_name = 'Nigeria'
-    else:
-        location_name = hoverData['points'][0]['text']
+# def update_graph(x_varname, y_varname, hoverData):
+#     if hoverData is None:  # Initialize before any hovering
+#         location_name = 'Nigeria'
+#     else:
+#         location_name = hoverData['points'][0]['text']
 
-    # Make size of marker respond to map hover
-    df['size'] = 12
-    df.loc[df.location_name == location_name, 'size'] = 30
+#     # Make size of marker respond to map hover
+#     df['size'] = 12
+#     df.loc[df.location_name == location_name, 'size'] = 30
 
-    return {
-        'data': [
-            go.Scatter(
-                x=df[df['super_region_name'] == i][x_varname],
-                y=df[df['super_region_name'] == i][y_varname],
-                text=df[df['super_region_name'] == i]['location_name'],
-                mode='markers',
-                opacity=0.7,
-                marker={
-                    'size': df[df['super_region_name'] == i]['size'],
-                    'line': {'width': 0.5, 'color': 'white'}
-                },
-                name=i
-            ) for i in df.super_region_name.unique()
-        ],
-        'layout': go.Layout(
-            height=400,
-            xaxis={'title': x_varname},
-            yaxis={'title': y_varname},
-            margin={'l': 40, 'b': 40, 't': 10, 'r': 10},
-            # legend={'x': 0, 'y': 1},
-            hovermode='closest'
-        )
-    }
+#     return {
+#         'data': [
+#             go.Scatter(
+#                 x=df[df['super_region_name'] == i][x_varname],
+#                 y=df[df['super_region_name'] == i][y_varname],
+#                 text=df[df['super_region_name'] == i]['location_name'],
+#                 mode='markers',
+#                 opacity=0.7,
+#                 marker={
+#                     'size': df[df['super_region_name'] == i]['size'],
+#                     'line': {'width': 0.5, 'color': 'white'}
+#                 },
+#                 name=i
+#             ) for i in df.super_region_name.unique()
+#         ],
+#         'layout': go.Layout(
+#             height=400,
+#             xaxis={'title': x_varname},
+#             yaxis={'title': y_varname},
+#             margin={'l': 40, 'b': 40, 't': 10, 'r': 10},
+#             # legend={'x': 0, 'y': 1},
+#             hovermode='closest'
+#         )
+#     }
 
 
 @app.callback(Output('updateDrift', 'children'),
