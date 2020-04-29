@@ -25,15 +25,10 @@ indicator_key = df0.drop_duplicates('indicator_short').set_index('indicator_shor
 
 ################################################################################################################
 
-
 top_markdown_text = '''
-### Dash Tutorial - Sustainable Development Goals
-#### Zane Rankin, 2/17/2019
-The [Institute for Health Metrics and Evaluation](http://www.healthdata.org/) publishes estimates for 41 health-related SDG indicators for 
-195 countries and territories.  
-I downloaded the [data](http://ghdx.healthdata.org/record/global-burden-disease-study-2017-gbd-2017-health-related-sustainable-development-goals-sdg) 
-for a tutorial on Medium and Github   
-**Indicators are scaled 0-100, with 0 being worst observed (e.g. highest mortality) and 100 being best.**  
+### Call/Put Replication Strategy Tool
+#### Michel Vanderhulst - 04/29/2020
+Master's thesis - Louvain School of Management 
 '''
 
 app.layout = html.Div([
@@ -43,15 +38,31 @@ app.layout = html.Div([
 
     # LEFT - CHOROPLETH MAP
     html.Div([
+    	html.Label("Call or Put:"),
+        dcc.Dropdown(
+            id='CallOrPut',
+            options=[{'label':'European Call option', 'value':"Call"},
+            		 {'label':'European Put option', 'value':"Put"}],
+            value='Call'),
+        #
+        html.Div([
+        	html.Div([
+            	html.Label('Spot price'),
+            	dcc.Input(id="S", value=100, type='number')
+        	], className="six columns"),
+
+       		html.Div([
+            	html.Label("Strike"),
+            	dcc.Input(id="K", value=100, type='number')
+        	], className="six columns"),
+    	], className="row"),
         dcc.Dropdown(
             id='x-varname',
             options=[{'label': i, 'value': i} for i in indicators],
-            value='SDG Index'
-        ),
+            value='SDG Index'),
         dcc.Markdown(id='x-description'),
         dcc.Graph(id='county-choropleth'),
         dcc.Markdown('*Hover over map to select country for plots*'),
-
     ], style={'float': 'left', 'width': '39%'}),
 
     # RIGHT - SCATTERPLOT
