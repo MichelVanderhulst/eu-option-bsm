@@ -2,7 +2,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
-import pandas as pd
+#import pandas as pd
 import plotly.graph_objs as go
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -12,16 +12,16 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 
 ################################################################################################################
-# LOAD AND PROCESS DATA
-df0 = pd.read_csv('./data/IHME_GBD_2017_HEALTH_SDG_1990_2030_SCALED_Y2018M11D08.CSV')
-loc_meta = pd.read_csv('./data/location_metadata.csv')
+# # LOAD AND PROCESS DATA
+# df0 = pd.read_csv('./data/IHME_GBD_2017_HEALTH_SDG_1990_2030_SCALED_Y2018M11D08.CSV')
+# loc_meta = pd.read_csv('./data/location_metadata.csv')
 
-# Indicator Value by country in wide format
-df = df0.pivot(index='location_name', columns='indicator_short', values='scaled_value')
-df = pd.merge(loc_meta, df.reset_index())
-indicators = df0.indicator_short.unique().tolist()
-indicator_key = df0.drop_duplicates('indicator_short').set_index('indicator_short')[
-    'ihme_indicator_description'].to_dict()
+# # Indicator Value by country in wide format
+# df = df0.pivot(index='location_name', columns='indicator_short', values='scaled_value')
+# df = pd.merge(loc_meta, df.reset_index())
+# indicators = df0.indicator_short.unique().tolist()
+# indicator_key = df0.drop_duplicates('indicator_short').set_index('indicator_short')[
+#     'ihme_indicator_description'].to_dict()
 
 ################################################################################################################
 
@@ -110,8 +110,7 @@ app.layout = html.Div([
     dcc.Checklist(
        	options=[
        		{'label': 'Fixed TC', 'value': 'FTC'},
-        	{'label': 'Proportional TC', 'value': 'PTC'}],
-        value = [], 
+        	{'label': 'Proportional TC', 'value': 'PTC'}], 
         labelStyle={'display': 'inline-block'})	
 
     ], style={'float': 'left', 'width': '39%'}),
