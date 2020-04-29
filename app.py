@@ -105,13 +105,13 @@ app.layout = html.Div([
         	values=[],
         	labelStyle={'display': 'inline-block'}),	
     	#
-        dcc.Dropdown(
-            id='x-varname',
-            options=[{'label': i, 'value': i} for i in indicators],
-            value='SDG Index'),
-        dcc.Markdown(id='x-description'),
-        dcc.Graph(id='county-choropleth'),
-        dcc.Markdown('*Hover over map to select country for plots*'),
+        # dcc.Dropdown(
+        #     id='x-varname',
+        #     options=[{'label': i, 'value': i} for i in indicators],
+        #     value='SDG Index'),
+        # dcc.Markdown(id='x-description'),
+        # dcc.Graph(id='county-choropleth'),
+        # dcc.Markdown('*Hover over map to select country for plots*'),
     ], style={'float': 'left', 'width': '39%'}),
 
     # RIGHT - SCATTERPLOT
@@ -140,40 +140,40 @@ app.layout = html.Div([
 ])
 
 
-@app.callback(
-    Output('x-description', 'children'),
-    [Input('x-varname', 'value')])
-def x_description(i):
-    return f'{indicator_key[i]}'
+# @app.callback(
+#     Output('x-description', 'children'),
+#     [Input('x-varname', 'value')])
+# def x_description(i):
+#     return f'{indicator_key[i]}'
 
 
-@app.callback(
-    Output('y-description', 'children'),
-    [Input('y-varname', 'value')])
-def y_description(i):
-    return f'{indicator_key[i]}'
+# @app.callback(
+#     Output('y-description', 'children'),
+#     [Input('y-varname', 'value')])
+# def y_description(i):
+#     return f'{indicator_key[i]}'
 
 
-@app.callback(
-    Output('county-choropleth', 'figure'),
-    [Input('x-varname', 'value')])
-def update_map(x_varname):
-    return dict(
-        data=[dict(
-            locations=df['ihme_loc_id'],
-            z=df[x_varname],
-            text=df['location_name'],
-            autocolorscale=False,
-            reversescale=True,
-            type='choropleth',
-        )],
-        layout=dict(
-            title=x_varname,
-            height=400,
-            margin={'l': 0, 'b': 0, 't': 40, 'r': 0},
-            geo=dict(showframe=False,
-                     projection={'type': 'Mercator'}))
-    )
+# @app.callback(
+#     Output('county-choropleth', 'figure'),
+#     [Input('x-varname', 'value')])
+# def update_map(x_varname):
+#     return dict(
+#         data=[dict(
+#             locations=df['ihme_loc_id'],
+#             z=df[x_varname],
+#             text=df['location_name'],
+#             autocolorscale=False,
+#             reversescale=True,
+#             type='choropleth',
+#         )],
+#         layout=dict(
+#             title=x_varname,
+#             height=400,
+#             margin={'l': 0, 'b': 0, 't': 40, 'r': 0},
+#             geo=dict(showframe=False,
+#                      projection={'type': 'Mercator'}))
+#     )
 
 
 @app.callback(
