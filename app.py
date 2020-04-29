@@ -102,7 +102,7 @@ app.layout = html.Div([
        		options=[
        			{'label': 'Fixed TC', 'value': 'FTC'},
         		{'label': 'Proportional TC', 'value': 'PTC'}], 
-        	value=['FTC', 'PTC'],
+        	values=['FTC', 'PTC'],
         	labelStyle={'display': 'inline-block'}),	
     	#
         dcc.Dropdown(
