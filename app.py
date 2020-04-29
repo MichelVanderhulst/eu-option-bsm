@@ -27,13 +27,9 @@ indicator_key = df0.drop_duplicates('indicator_short').set_index('indicator_shor
 
 
 top_markdown_text = '''
-### Dash Tutorial - Sustainable Development Goals
-#### Zane Rankin, 2/17/2019
-The [Institute for Health Metrics and Evaluation](http://www.healthdata.org/) publishes estimates for 41 health-related SDG indicators for 
-195 countries and territories.  
-I downloaded the [data](http://ghdx.healthdata.org/record/global-burden-disease-study-2017-gbd-2017-health-related-sustainable-development-goals-sdg) 
-for a tutorial on Medium and Github   
-**Indicators are scaled 0-100, with 0 being worst observed (e.g. highest mortality) and 100 being best.**  
+### Call/Put Replication Strategy Tool
+#### Michel Vanderhulst - 04/29/2020
+** nique toi profondément **  
 '''
 
 app.layout = html.Div([
