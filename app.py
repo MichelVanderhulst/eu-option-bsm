@@ -102,7 +102,7 @@ app.layout = html.Div([
        		options=[
        			{'label': 'Fixed TC', 'value': 'FTC'},
         		{'label': 'Proportional TC', 'value': 'PTC'}], 
-        	values=['FTC', 'PTC'],
+        	values=[],
         	labelStyle={'display': 'inline-block'}),	
     	#
         dcc.Dropdown(
@@ -116,6 +116,18 @@ app.layout = html.Div([
 
     # RIGHT - SCATTERPLOT
     html.Div([
+    	    html.Div([
+        	html.Div([
+            	html.Label('Discretization step'),
+            	dcc.Input(id="dt", value=0.01, type='number')
+        			], className="six columns"),
+        	#
+       		html.Div([
+            	html.Label("Portfolio rebalancing"),
+            	dcc.Input(id="dt_p", value=1, type='number')
+        			], className="six columns"),
+    		], className="row"),
+    	#
         dcc.Dropdown(
             id='y-varname',
             options=[{'label': i, 'value': i} for i in indicators],
