@@ -94,6 +94,7 @@ app.layout = html.Div([
         	updatemode='drag',
         	value=1),
     	#
+    	html.Br(),
     	html.Label('Transaction costs'), 
     	dcc.Input(id="TC", value=0, type='number'),
     	#
