@@ -240,6 +240,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 import plotly.graph_objs as go
 from EU_Option_BSM_GBM_V5 import *
+from descriptions import list_input
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -247,24 +248,26 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 server = app.server
 
-################################################################################################################
-
-################################################################################################################
-
 top_markdown_text = '''
 ### Call/Put Replication Strategy Tool
-#### Michel Vanderhulst - 04/29/2020
-Master's thesis - Louvain School of Management
+#### Michel Vanderhulst 
+#### Master's thesis - Louvain School of Management
 '''
 
-app.layout = html.Div([
+graph_rep_strat_text = ''' #### Replication strategy '''
 
+graph_port_details_text = ''' #### Portfolio composition'''
+graph_held_shares_text = ''' #### Held shares'''
+graph_sde_deriv_text = ''' #### Option greeks '''
+
+
+app.layout = html.Div([
+	dcc.Store(id='memory-output'),
     # HEADER
     dcc.Markdown(children=top_markdown_text),
-
+    #
     # LEFT - CHOROPLETH MAP
     html.Div([
-    	html.Label("Call or Put:"),
         dcc.Dropdown(
             id='CallOrPut',
             options=[{'label':'European Call option', 'value':"Call"},
@@ -273,17 +276,17 @@ app.layout = html.Div([
         #
         html.Div([
         	html.Div([
-            	html.Label('Spot price'),
+            	html.Label('Spot price', title=list_input["Spot price"]),
             	dcc.Input(id="S", value=100, type='number')
         	], className="six columns"),
 
        		html.Div([
-            	html.Label("Strike"),
+            	html.Label("Strike", title=list_input["Strike"]),
             	dcc.Input(id="K", value=100, type='number')
         	], className="six columns"),
     	], className="row"),
     	#
-    	html.Label('Drift'),
+    	html.Label('Drift', title=list_input["Drift"]),
         html.Div(id='drift'),
     	dcc.Slider(
     		id='mu',
@@ -292,7 +295,7 @@ app.layout = html.Div([
         	value=0.10,
         	step=0.01),
     	#
-        html.Label('Volatility'),
+        html.Label('Volatility', title=list_input["Volatility"]),
         html.Div(id='sigma'),
     	dcc.Slider(
     		id='vol',
@@ -301,7 +304,7 @@ app.layout = html.Div([
         	step=0.01,
         	value=0.20),
         #
-        html.Label('Risk-free rate'),
+        html.Label('Risk-free rate', title=list_input["Volatility"]),
         html.Div(id='riskfree'),
     	dcc.Slider(
     		id='Rf',
@@ -310,7 +313,17 @@ app.layout = html.Div([
         	step=0.01,
         	value=0.05),
     	#
-    	html.Label('T'),
+    	dcc.Markdown(children=graph_rep_strat_text),
+        dcc.Graph(id='replication'),
+        #
+        dcc.Markdown(children=graph_held_shares_text),
+        dcc.Graph(id='held_shares'),
+
+    ], style={'float': 'left', 'width': '50%'}),
+
+    # RIGHT - SCATTERPLOT
+    html.Div([
+    	html.Label('Maturity', title=list_input["Maturity"]),
     	dcc.Slider(
     		id='T',
         	min=1,
@@ -321,7 +334,19 @@ app.layout = html.Div([
         	value=3),
     	#
     	html.Br(),
-    	html.Label('Transaction costs'),
+    	html.Div([
+        	html.Div([
+            	html.Label('Discretization step', title=list_input["Discretization step"]),
+            	dcc.Input(id="dt", value=0.01, type='number')
+        			], className="six columns"),
+        #
+       		html.Div([
+            	html.Label("Portfolio rebalancing", title=list_input["Rebalancing frequency"]),
+            	dcc.Input(id="dt_p", value=1, type='number')
+        			], className="six columns"),
+    		], className="row"),
+    	#
+    	html.Label('Transaction costs', title=list_input["Transaction costs"]),
     	dcc.Input(id="TransactionCosts", value=0, type='number'),
     	#
     	dcc.Checklist(
@@ -339,30 +364,26 @@ app.layout = html.Div([
         	value=[], #ADD AN S WHEN GOING ONLINE
         	),
     	#
-    ], style={'float': 'left', 'width': '39%'}),
-
-    # RIGHT - SCATTERPLOT
-    html.Div([
-    	html.Div([
-        	html.Div([
-            	html.Label('Discretization step'),
-            	dcc.Input(id="dt", value=0.01, type='number')
-        			], className="six columns"),
+    	html.Br(),
+    	html.Br(),
+    	html.Br(),
+    	html.Br(),
+    	dcc.Markdown(children=graph_port_details_text),
+        dcc.Graph(id='port_details'),
         #
-       		html.Div([
-            	html.Label("Portfolio rebalancing"),
-            	dcc.Input(id="dt_p", value=1, type='number')
-        			], className="six columns"),
-    		], className="row"),
-    	#
-        dcc.Graph(id='replication'),
-    ], style={'float': 'right', 'width': '59%'}),
+        dcc.Markdown(children=graph_sde_deriv_text),
+        dcc.Graph(id='sde_deriv'),
+
+    ], style={'float': 'right', 'width': '50%'}),
+
 
 ])
 
+
+
 @app.callback(
-    Output('replication', 'figure'),
-    [Input('CallOrPut', 'value'),
+	Output('memory-output', 'data'),
+	[Input('CallOrPut', 'value'),
      Input("S","value"),
      Input("K", "value"),
      Input("Rf", "value"),
@@ -374,49 +395,69 @@ app.layout = html.Div([
      Input("TransactionCosts", "value"),
 	 Input("FixedOrPropor", "value"),
      Input("seed", "value"),])
-def rep_strat(CallOrPut, S, K, Rf,T,mu,vol,dt,dt_p, TransactionCosts, FixedOrPropor, sde__seed):
-	a, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, V_t = RepStrat_EU_Option_BSM_GBM_V4(CallOrPut, S, K, Rf, T, mu, vol, dt, dt_p, TransactionCosts, FixedOrPropor,  sde__seed)
+def get_rep_strat_data(CallOrPut, S, K, Rf,T,mu,vol,dt,dt_p, TransactionCosts, FixedOrPropor, sde__seed):
+	dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx = RepStrat_EU_Option_BSM_GBM_V4(CallOrPut, S, K, Rf, T, mu, vol, dt, dt_p, TransactionCosts, FixedOrPropor,  sde__seed)
+																
+	return dt, K, list(discre_matu), StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx
 
-	return{ #problème: comment ajouter plusieurs y dans le même plotly
+
+@app.callback(
+    Output('replication', 'figure'),
+    [Input('memory-output', 'data'),])
+def graph_rep_strat(data):
+	dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx = data
+
+	return{
     'data': [
         go.Scatter(
-            x=list(a),
+            x=discre_matu,
             y=StockPrice,
-            text="Stock price simulation (GBM)",
             mode='lines',
             opacity=0.7,
             name="Stock price simulation (GBM)"),
         go.Scatter(
-        	x=list(a),
+        	x=discre_matu,
+        	y=[K]*len(discre_matu),
+        	mode='lines',
+        	opacity=0.7,
+        	name=f"Strike = {K}",
+        	),
+        go.Scatter(
+        	x=discre_matu,
         	y=OptionIntrinsicValue,
-        	text="Option intrinsic value",
         	mode="lines",
         	opacity=0.7,
         	name="Option intrinsic value"),
         go.Scatter(
-        	x=list(a),
+        	x=discre_matu,
         	y=OptionPrice,
-        	text="Option price",
         	mode="lines",
         	opacity=0.7,
         	name="Option price"),
         go.Scatter(
-        	x=list(a),
+        	x=discre_matu,
         	y=V_t,
-        	text="SDE simulation",
         	mode="lines",
         	opacity=0.7,
         	name="SDE simulation"),  
         go.Scatter(
-        	x=list(a),
-        	y=EquityAccount+CashAccount,
-        	text="Portfolio",
+        	x=discre_matu,
+        	y=Portfolio,
         	mode="lines",
         	opacity=0.7,
         	name="Portfolio"),
+        go.Scatter(
+        	x=[None], 
+        	y=[None], 
+        	mode='markers',
+            name=f'Payoff - Portfolio: {round(OptionIntrinsicValue[-1]-EquityAccount[-1]-CashAccount[-1],2)}'),
     ],
     'layout': go.Layout(
         #height=400,
+        title={'yref':"paper",
+        		'y':1,
+        		"yanchor":"bottom"},
+        margin={"t":15},
         xaxis={'title': f"Discretized time to maturity (dt={dt})"},
         yaxis={'title': "USD"},
         # title={"title:" f"{CallOrPut} replication strategy"}
@@ -425,6 +466,196 @@ def rep_strat(CallOrPut, S, K, Rf,T,mu,vol,dt,dt_p, TransactionCosts, FixedOrPro
         #hovermode='closest'
     )
 }
+
+
+@app.callback(
+    Output('port_details', 'figure'),
+    [Input('memory-output', 'data'),])
+def graph_portf_details(data):
+	dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx = data
+	return{
+    'data': [
+        go.Scatter(
+            x=discre_matu,
+            y=EquityAccount,
+            mode='lines',
+            opacity=0.7,
+            name="Equity account"),
+        go.Scatter(
+        	x=discre_matu,
+        	y=CashAccount,
+        	mode='lines',
+        	opacity=0.7,
+        	name="Cash account",
+        	),
+        go.Scatter(
+        	x=discre_matu,
+        	y=Portfolio,
+        	mode="lines",
+        	opacity=0.7,
+        	name="Portfolio"),
+    ],
+    'layout': go.Layout(
+        #height=400,
+        margin={"t":15},
+        xaxis={'title': f"Discretized time to maturity (dt={dt})"},
+        yaxis={'title': "USD"},
+        # title={"title:" f"{CallOrPut} replication strategy"}
+        #margin={'l': 40, 'b': 40, 't': 10, 'r': 10},
+        # legend={'x': 0, 'y': 1},
+        #hovermode='closest'
+    )
+}
+
+
+@app.callback(
+    Output('held_shares', 'figure'),
+    [Input('memory-output', 'data'),])
+def graph_portf_details(data):
+	dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx = data
+	return{
+    'data': [
+        go.Scatter(
+        	x=discre_matu,
+        	y=f_x,
+        	mode='lines',
+        	opacity=0.7,
+        	name="Held shares",
+        	),
+    ],
+    'layout': go.Layout(
+        #height=400,
+        margin={"t":15},
+        xaxis={'title': f"Discretized time to maturity (dt={dt})"},
+        yaxis={'title': "USD"},
+        # title={"title:" f"{CallOrPut} replication strategy"}
+        #margin={'l': 40, 'b': 40, 't': 10, 'r': 10},
+        # legend={'x': 0, 'y': 1},
+        #hovermode='closest'
+    )
+}
+
+@app.callback(
+    Output('sde_deriv', 'figure'),
+    [Input('memory-output', 'data'),])
+def graph_portf_details(data):
+	dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx = data
+	return{
+    'data': [
+        go.Scatter(
+            x=discre_matu,
+            y=f_t,
+            mode='lines',
+            opacity=0.7,
+            name="Theta"),
+        go.Scatter(
+        	x=discre_matu,
+        	y=f_x,
+        	mode='lines',
+        	opacity=0.7,
+        	name="Delta",
+        	),
+        go.Scatter(
+        	x=discre_matu,
+        	y=f_xx,
+        	mode="lines",
+        	opacity=0.7,
+        	name="Gamma"),
+    ],
+    'layout': go.Layout(
+        #height=400,
+        margin={"t":15},
+        xaxis={'title': f"Discretized time to maturity (dt={dt})"},
+        yaxis={'title': "USD"},
+        # title={"title:" f"{CallOrPut} replication strategy"}
+        #margin={'l': 40, 'b': 40, 't': 10, 'r': 10},
+        # legend={'x': 0, 'y': 1},
+        #hovermode='closest'
+    )
+}
+
+
+
+#f_x[:], label="Delta", f_t[:], label="Theta", f_xx[:], label="Gamma")	
+
+# @app.callback(
+#     Output('replication', 'figure'),
+#     [Input('CallOrPut', 'value'),
+#      Input("S","value"),
+#      Input("K", "value"),
+#      Input("Rf", "value"),
+#      Input("T","value"),
+#      Input("mu","value"),
+#      Input("vol", "value"),
+#      Input("dt", "value"),
+#      Input("dt_p", "value"),
+#      Input("TransactionCosts", "value"),
+# 	 Input("FixedOrPropor", "value"),
+#      Input("seed", "value"),])
+# def rep_strat(CallOrPut, S, K, Rf,T,mu,vol,dt,dt_p, TransactionCosts, FixedOrPropor, sde__seed):
+# 	discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, V_t = RepStrat_EU_Option_BSM_GBM_V4(CallOrPut, S, K, Rf, T, mu, vol, dt, dt_p, TransactionCosts, FixedOrPropor,  sde__seed)
+
+# 	return{ #problème: comment ajouter plusieurs y dans le même plotly
+#     'data': [
+#         go.Scatter(
+#             x=list(discre_matu),
+#             y=StockPrice,
+#             mode='lines',
+#             opacity=0.7,
+#             name="Stock price simulation (GBM)"),
+#         go.Scatter(
+#         	x=list(discre_matu),
+#         	y=[K]*len(discre_matu),
+#         	mode='lines',
+#         	opacity=0.7,
+#         	name=f"Strike = {K}",
+#         	),
+#         go.Scatter(
+#         	x=list(discre_matu),
+#         	y=OptionIntrinsicValue,
+#         	mode="lines",
+#         	opacity=0.7,
+#         	name="Option intrinsic value"),
+#         go.Scatter(
+#         	x=list(discre_matu),
+#         	y=OptionPrice,
+#         	mode="lines",
+#         	opacity=0.7,
+#         	name="Option price"),
+#         go.Scatter(
+#         	x=list(discre_matu),
+#         	y=V_t,
+#         	mode="lines",
+#         	opacity=0.7,
+#         	name="SDE simulation"),  
+#         go.Scatter(
+#         	x=list(discre_matu),
+#         	y=EquityAccount+CashAccount,
+#         	mode="lines",
+#         	opacity=0.7,
+#         	name="Portfolio"),
+#         go.Scatter(
+#         	x=[None], 
+#         	y=[None], 
+#         	mode='markers',
+#             name=f'Payoff - Portfolio: {round(OptionIntrinsicValue[-1]-EquityAccount[-1]-CashAccount[-1],2)}'),
+#     ],
+#     'layout': go.Layout(
+#         #height=400,
+#         title={'yref':"paper",
+#         		'y':1,
+#         		"yanchor":"bottom"},
+#         margin={"t":15},
+#         xaxis={'title': f"Discretized time to maturity (dt={dt})"},
+#         yaxis={'title': "USD"},
+#         # title={"title:" f"{CallOrPut} replication strategy"}
+#         #margin={'l': 40, 'b': 40, 't': 10, 'r': 10},
+#         # legend={'x': 0, 'y': 1},
+#         #hovermode='closest'
+#     )
+# }
+
+
 	
 
 @app.callback(Output('drift', 'children'),

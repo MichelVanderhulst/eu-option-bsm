@@ -214,7 +214,7 @@ def RepStrat_EU_Option_BSM_GBM_V4(CallOrPut, S,K,Rf,T,mu,vol,dt,RebalancingSteps
     #####################                  START graphics                                          #####################
 
 
-    return a, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, V_t
+    return dt, K, a, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, EquityAccount+CashAccount, V_t, f_t, f_x, f_xx
 
 
 
