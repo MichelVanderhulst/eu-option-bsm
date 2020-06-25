@@ -49,7 +49,7 @@ def Theta(S, K, Rf, T, t, vol, phi):
     return ( phi*(-Rf*K*np.exp(-Rf*(T-t))*norm.cdf(phi*d2(S, K, Rf, T, t, vol)))   -  ((S*vol*norm.pdf(d1(S, K, Rf, T, t, vol)))/(2*np.sqrt(T-t)))  )
 
 
-def RepStrat_EU_Option_BSM_GBM_V4(CallOrPut, S,K,Rf,T,mu,vol,dt,RebalancingSteps, TransactionCosts, FixedOrPropor, sde_simulation):
+def RepStrat_EU_Option_BSM_GBM_V5(CallOrPut, S,K,Rf,T,mu,vol,dt,RebalancingSteps, TransactionCosts, FixedOrPropor, sde_simulation):
 
     ####################################################################################################################
     #####################  START derivative/model strings specifics, user input transformation,    #####################

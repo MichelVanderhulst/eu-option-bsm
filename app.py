@@ -8,21 +8,15 @@ from EU_Option_BSM_GBM_V5 import *
 from descriptions import list_input
 import base64
 
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-
-# app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-image_filename = "bsm-math.png"
-encoded_image = base64.b64encode(open(image_filename, 'rb').read())
-
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML'])
 server = app.server
 
-top_markdown_text = '''
-### Call/Put Replication Strategy Tool
-#### Michel Vanderhulst 
-#### Master's thesis - Louvain School of Management
-'''
+bg_color="#506784",
+font_color="#F3F6FA"
+
+email = "michelvanderhulst@student.uclouvain.be"
+
+
 
 graph_rep_strat_text = ''' #### Replication strategy '''
 
@@ -31,138 +25,206 @@ graph_held_shares_text = ''' #### Held shares'''
 graph_sde_deriv_text = ''' #### Option greeks '''
 
 
-app.layout = html.Div([
-	dcc.Store(id='memory-output'),
-    # HEADER
-    dcc.Markdown(children=top_markdown_text),
-    #
-    dbc.Button(
-        "Show me the math", 
-        id="popover-target", 
-        color="primary", 
-        className="mr-1",
-        #size="lg",
-        ),
-    dbc.Popover(
-        [
-            dbc.PopoverHeader("CRR model math"),
-            dbc.PopoverBody([html.Img(src='data:image/png;base64,{}'.format(encoded_image.decode())    , style={"width": "250%"})]),
-        ],
-        id="popover",
-        is_open=False,
-        target="popover-target",
-        ),
-    html.Br(),
-    html.Br(),
-    # LEFT - CHOROPLETH MAP
-    html.Div([
-        dcc.Dropdown(
-            id='CallOrPut',
-            options=[{'label':'European Call option', 'value':"Call"},
-            		 {'label':'European Put option', 'value':"Put"}],
-            value='Call'),
-        #
-        html.Div([
-            	html.Label('Spot price', title=list_input["Spot price"]),
-            	dcc.Input(id="S", value=100, type='number'),
-            	],style={'width': '49%', 'display': 'inline-block'}),
-       	html.Div([
-            	html.Label("Strike", title=list_input["Strike"]),
-            	dcc.Input(id="K", value=100, type='number')
-        		],style={'width': '49%', 'display': 'inline-block'}),
-
-    	#
-    	html.Label('Drift', title=list_input["Drift"]),
-        html.Div(id='drift'),
-    	dcc.Slider(
-    		id='mu',
-        	min=-0.30,
-        	max=0.30,
-        	value=0.10,
-        	step=0.01),
-    	#
-        html.Label('Volatility', title=list_input["Volatility"]),
-        html.Div(id='sigma'),
-    	dcc.Slider(
-    		id='vol',
-        	min=0,
-        	max=1,
-        	step=0.01,
-        	value=0.20),
-        #
-        html.Label('Risk-free rate', title=list_input["Volatility"]),
-        html.Div(id='riskfree'),
-    	dcc.Slider(
-    		id='Rf',
-        	min=0,
-        	max=0.1,
-        	step=0.01,
-        	value=0.05),
-    	#
-    	dcc.Markdown(children=graph_rep_strat_text),
-        dcc.Graph(id='replication'),
-        #
-        dcc.Markdown(children=graph_held_shares_text),
-        dcc.Graph(id='held_shares'),
-
-    ], style={'float': 'left', 'width': '50%'}),
-
-    # RIGHT - SCATTERPLOT
-    html.Div([
-    	html.Label('Maturity', title=list_input["Maturity"]),
-    	dcc.Slider(
-    		id='T',
-        	min=1,
-        	max=5,
-        	marks={i: '{}'.format(i) for i in range(6)},
-        	step=0.25,
-        	updatemode='drag',
-        	value=3),
-    	#
-    	html.Br(),
-        html.Div([
-            	html.Label('Discretization step', title=list_input["Discretization step"]),
-            	dcc.Input(id="dt", value=0.01, type='number')
-        		],style={'width': '49%', 'display': 'inline-block'}),
-        #
-       	html.Div([
-            	html.Label("Portfolio rebalancing", title=list_input["Rebalancing frequency"]),
-            	dcc.Input(id="dt_p", value=1, type='number')
-        		],style={'width': '49%', 'display': 'inline-block'}),
-    	#
-    	html.Label('Transaction costs', title=list_input["Transaction costs"]),
-    	dcc.Input(id="TransactionCosts", value=0, type='number'),
-    	#
-    	dcc.Checklist(
-    		id = "FixedOrPropor",
-       		options=[
-       			{'label': 'Fixed TC', 'value': 'FTC'},
-        		{'label': 'Proportional TC', 'value': 'PTC'}],
-        	value=[], #ADD AN S WHEN GOING ONLINE
-        	labelStyle={'display': 'inline-block'}),
-    	#
-    	dcc.Checklist(
-    		id = "seed",
-       		options=[
-        		{'label': 'Fix random generation seed', 'value': "seed"}],
-        	value=[], #ADD AN S WHEN GOING ONLINE
-        	),
-    	#
-    	html.Br(),
-    	html.Br(),
-    	html.Br(),
-    	html.Br(),
-    	dcc.Markdown(children=graph_port_details_text),
-        dcc.Graph(id='port_details'),
-        #
-        dcc.Markdown(children=graph_sde_deriv_text),
-        dcc.Graph(id='sde_deriv'),
-
-    ], style={'float': 'right', 'width': '50%'}),
+def header():
+	return html.Div(
+                id='app-page-header',
+                children=[#html.Div(html.A(
+		              #            id='lsm-logo', 
+		              #            children=[html.Img(src='data:image/png;base64,{}'.format(base64.b64encode(open("output-onlinepngtools (1).png", 'rb').read()).decode()))],
+		              #            href="https://uclouvain.be/en/faculties/lsm",
+		              #            target="_blank", #open link in new tab
+		              #            style={'margin':'20px'}
+		              #              ), style={"display":"inline-block"}),
+                    #
+                    #
+                    # html.Div(
+	                   #  html.A(
+	                   #  	id="nova-logo", 
+	                   #  	children=[html.Img(src="data:image/png;base64,{}".format(base64.b64encode(open("output-onlinepngtools (2).png",'rb').read()).decode()))],
+	                   #  	href="https://www2.novasbe.unl.pt/en/",
+	                   #  	style={"margin":"-45px"}
+	                   #  	  ), style={"display":"inline-block"}),
+                    #
+                    #
+                    html.Div(children=[html.H3("European option replication strategy app"),
+                    				   html.H4("Black-Scholes-Merton model")
+                    				  ],
+                       		 style={"display":"inline-block", "font-family":'sans-serif'}),
+                    #
+                    #
+                    html.Div(children=[dbc.Button("About", id="popover-target", outline=True, style={"color":"white", 'border': 'solid 1px white'}),
+                    	      		   dbc.Popover(children=[dbc.PopoverHeader("About"),
+                    	      	       		   	             dbc.PopoverBody(["Michel Vanderhulst",                     	    
+                    	      	       		   	             				  f"\n {email}", 
+                    	      	       		   	             				  html.Hr(), 
+                    	      	       		   	             				  "This app was built for my Master's Thesis, under the supervision of Prof. Frédéric Vrins (frederic.vrins@uclouvain.be)."]),],
+                    	      	          		   id="popover",
+                    	      	          		   is_open=False,
+                    	      	          		   target="popover-target"),
+                    	      		   ],
+                    	      style={"display":"inline-block", "font-family":"sans-serif", 'marginLeft': '60%'}),
+                		 ],
+                style={
+                    'background': bg_color,
+                    'color': font_color,
+                    'padding':20,
+                    'margin':'-10px',
+                }
+            )
 
 
-])
 
+def body():
+	return html.Div(children=[
+            html.Div(id='left-column', children=[
+                dcc.Tabs(
+                    id='tabs', value='The app',
+                    children=[
+                        dcc.Tab(
+                            label='The app',
+                            value='The app',
+                            children=html.Div(children=[
+                            	html.Br(),
+                                html.H4('What is this app?', style={"text-align":"center"}
+                                ),
+                                html.P(
+                                    """
+                                    This app computes the replication strategy of vanilla European options on a set of given input, and compares its value against the traditional Black-Scholes-Merton
+                                    price.                           
+                                    """
+                                ),
+                                html.P(
+                                    """
+                                    The goal is to showcase that the price is truly arbitrage-free, as both the strategy and the Black-Scholes have the same values. 
+                                    """
+                                ),
+                                html.P(
+                                    """
+                                    Read more about options : 
+                                    https://en.wikipedia.org/wiki/Option_(finance)
+                                    
+                                    """
+                                ),
+                            ])
+                        ),
+                        dcc.Tab(
+                        	label="Methodology",
+                        	value="Methodology",
+                        	children=[html.P(children='Will be checked later. Is this \(\pi\) inline with my sentance.'), html.P(children='$$ \lim_{t \\rightarrow \infty} \pi = 0$$')]),
+                        		
+                        dcc.Tab(
+                            label='Input',
+                            value='Input',
+                            children=html.Div(children=[
+                            					html.Br(),
+                            					#
+                            					html.P(
+				                                    """
+				                                    Hover your mouse over any input to get its definition.                           
+				                                    """
+				                                ),
+                            					dcc.Dropdown(
+                            						id='CallOrPut',
+            										options=[{'label':'European Call option', 'value':"Call"},
+            		 										 {'label':'European Put option', 'value':"Put"}],
+            										value='Call'),
+										        #
+										        html.Br(),
+										        #
+										        html.Div(children=[html.Label('Spot price', title=list_input["Spot price"], style={'font-weight': 'bold', "text-align":"center", "width":"25%",'display': 'inline-block'} ),
+										            			   dcc.Input(id="S", value=100, type='number', style={"width":"16%", 'display': 'inline-block'}),
+										            			   html.Label("Strike", title=list_input["Strike"], style={'font-weight': 'bold',"text-align":"center", "width":"25%",'display': 'inline-block'} ),
+										            			   dcc.Input(id="K", value=100, type='number', style={"width":"16%", 'display': 'inline-block'}),
+										            			  ],),				       
+										    	#
+										    	html.Div(children=[html.Label("Drift", title=list_input["Drift"], style={'font-weight': 'bold', 'display': 'inline-block'}),
+										    			  		   html.Label(id="drift", style={'display': 'inline-block'}),
+										    			  		  ]),
+										    	#
+										    	dcc.Slider(id='mu', min=-0.30, max=0.30, value=0.10, step=0.01, marks={-0.30: '-30%', 0.30: '30%'}),
+										    	#
+										    	html.Div([html.Label('Volatility', title=list_input["Volatility"], style={'font-weight': 'bold', "display":"inline-block"}),
+										    			  html.Label(id="sigma", style={"display":"inline-block"}),]),  
+										    	#
+										    	dcc.Slider(id='vol', min=0, max=1, step=0.01, value=0.20, marks={0:"0%", 1:"100%"}),
+										        #
+										        html.Div([html.Label('Risk-free rate', title=list_input["Risk-free rate"], style={'font-weight': 'bold', "display":"inline-block"}),
+										    			  html.Label(id="riskfree", style={"display":"inline-block"}),]),  
+										    	dcc.Slider(id='Rf', min=0, max=0.1, step=0.01, value=0.05, marks={0:"0%", 0.1:"10%"}),
+										    	#
+										    	html.Div([html.Label('Maturity', title=list_input["Maturity"], style={'font-weight':'bold', "display":"inline-block"}),
+										    			  html.Label(id="matu", style={"display":"inline-block"}),]),										 
+										    	dcc.Slider(id='T', min=0.25, max=5, # marks={i: '{}'.format(i) for i in range(6)},
+										    			   marks={0.25:"3 months", 5:"5 years"}, step=0.25, value=3),
+										    	#
+										    	html.Br(),
+										        html.Div([
+										            	html.Label('Discretization step', title=list_input["Discretization step"], style={'font-weight': 'bold', "text-align":"left",'width': '50%', 'display': 'inline-block'}),
+										            	dcc.Input(id="dt", value=0.01, type='number', style={"width":"16%", 'display': 'inline-block'}),
+										        		]),
+										        #
+										       	html.Div([
+										            	html.Label("Portfolio rebalancing", title=list_input["Rebalancing frequency"], style={'font-weight': 'bold', "text-align":"left",'width': '50%', 'display': 'inline-block'}),
+										            	dcc.Input(id="dt_p", value=1, type='number', style={"width":"16%", 'display': 'inline-block'}),
+										        		]),
+										    	#
+										    	html.Div([html.Label('Transaction costs', title=list_input["Transaction costs"], style={'font-weight': 'bold', "text-align":"left",'width': '50%', 'display': 'inline-block'}),
+										    			  dcc.Input(id="TransactionCosts", value=0, type='number', style={"width":"16%", 'display': 'inline-block'}),
+										    			]),
+										    	#
+										    	dcc.Checklist(
+										    		id = "FixedOrPropor",
+										       		options=[
+										       			{'label': 'Fixed TC', 'value': 'FTC'},
+										        		{'label': 'Proportional TC', 'value': 'PTC'}],
+										        	value=[], #ADD AN S WHEN GOING ONLINE
+										        	labelStyle={'padding':5, 'font-weight': 'bold', "text-align":"left", 'display': 'inline-block'}),
+										    	#
+										    	dcc.Checklist(
+										    		id = "seed",
+										       		options=[
+										        		{'label': 'Set random generation seed', 'value': "seed"}],
+										        	value=[], #ADD AN S WHEN GOING ONLINE
+										        	labelStyle={'font-weight': 'bold', "text-align":"left", 'display': 'inline-block'}
+										        	),
+                                            	])),],),
+        ], style={'float': 'left', 'width': '25%', 'margin':"30px"}),
+	])
+
+
+def graphs():
+	return html.Div(id='right-column', 
+					children=[
+						html.Br(),
+						html.Div([
+				        	html.Div(children=[dcc.Markdown(children=graph_port_details_text),
+					        				   dcc.Graph(id='port_details'),],
+					        		 style={"float":"right", "width":"45%", "display":"inline-block"}),
+				        	html.Div(children=[dcc.Markdown(children=graph_rep_strat_text),
+				        					  dcc.Graph(id='replication'),],
+				        			 style={"float":"right", "width":"55%", "display":"inline-block"}),
+				        		]),
+			        	html.Div([
+			        		html.Div(children=[dcc.Markdown(children=graph_sde_deriv_text),
+				        					   dcc.Graph(id='sde_deriv'),],
+				        			 style={"float":"right", "width":"45%", "display":"inline-block"}),
+			        		html.Div(children=[dcc.Markdown(children=graph_held_shares_text),
+			        						   dcc.Graph(id='held_shares'),],
+			        				 style={"float":"right", "width":"55%", "display":"inline-block"}),
+				        		]),
+							 ], 
+					style={'float': 'right', 'width': '70%'})
+
+
+app.layout = html.Div(
+				id='main_page',
+        		children=[
+            		dcc.Store(id='memory-output'),
+            		header(),
+            		body(),
+            		graphs(),
+        		 		 ],
+    				 )
 
 
 @app.callback(
@@ -180,8 +242,7 @@ app.layout = html.Div([
 	 Input("FixedOrPropor", "value"),
      Input("seed", "value"),])
 def get_rep_strat_data(CallOrPut, S, K, Rf,T,mu,vol,dt,dt_p, TransactionCosts, FixedOrPropor, sde__seed):
-	dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx = RepStrat_EU_Option_BSM_GBM_V4(CallOrPut, S, K, Rf, T, mu, vol, dt, dt_p, TransactionCosts, FixedOrPropor,  sde__seed)
-																
+	dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx = RepStrat_EU_Option_BSM_GBM_V5(CallOrPut, S, K, Rf, T, mu, vol, dt, dt_p, TransactionCosts, FixedOrPropor,  sde__seed)			
 	return dt, K, list(discre_matu), StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx
 
 
@@ -199,13 +260,13 @@ def graph_rep_strat(data):
             mode='lines',
             opacity=0.7,
             name="Stock price simulation (GBM)"),
-        go.Scatter(
-        	x=discre_matu,
-        	y=[K]*len(discre_matu),
-        	mode='lines',
-        	opacity=0.7,
-        	name=f"Strike = {K}",
-        	),
+        # go.Scatter(
+        # 	x=discre_matu,
+        # 	y=[K]*len(discre_matu),
+        # 	mode='lines',
+        # 	opacity=0.7,
+        # 	name=f"Strike = {K}",
+        # 	),
         go.Scatter(
         	x=discre_matu,
         	y=OptionIntrinsicValue,
@@ -241,8 +302,13 @@ def graph_rep_strat(data):
         		'y':1,
         		"yanchor":"bottom"},
         margin={"t":15},
-        xaxis={'title': f"Discretized time to maturity (dt={dt})"},
-        yaxis={'title': "USD"},
+        xaxis={'title': f"Discretized time to maturity"},
+        yaxis={'title': "Currency"},
+        legend=dict(
+	        x=0,
+	        y=1,
+	        traceorder='normal',
+	        bgcolor='rgba(0,0,0,0)'),
     )
 }
 
@@ -276,11 +342,15 @@ def graph_portf_details(data):
     ],
     'layout': go.Layout(
         margin={"t":15},
-        xaxis={'title': f"Discretized time to maturity (dt={dt})"},
-        yaxis={'title': "USD"},
+        xaxis={'title': f"Discretized time to maturity"},
+        yaxis={'title': "Currency"},
+        legend=dict(
+	        x=0,
+	        y=1,
+	        traceorder='normal',
+	        bgcolor='rgba(0,0,0,0)'),
     )
 }
-
 
 @app.callback(
     Output('held_shares', 'figure'),
@@ -299,8 +369,13 @@ def graph_portf_details(data):
     ],
     'layout': go.Layout(
         margin={"t":15},
-        xaxis={'title': f"Discretized time to maturity (dt={dt})"},
-        yaxis={'title': "USD"},
+        xaxis={'title': f"Discretized time to maturity"},
+        yaxis={'title': "Currency"},
+        legend=dict(
+	        x=0,
+	        y=1,
+	        traceorder='normal',
+	        bgcolor='rgba(0,0,0,0)'),
     )
 }
 
@@ -334,8 +409,13 @@ def graph_portf_details(data):
     'layout': go.Layout(
         #height=400,
         margin={"t":15},
-        xaxis={'title': f"Discretized time to maturity (dt={dt})"},
-        yaxis={'title': "USD"},
+        xaxis={'title': f"Discretized time to maturity"},
+        yaxis={'title': "Currency"},
+        legend=dict(
+	        x=0,
+	        y=1,
+	        traceorder='normal',
+	        bgcolor='rgba(0,0,0,0)'),
     )
 }
 
@@ -343,17 +423,27 @@ def graph_portf_details(data):
 @app.callback(Output('drift', 'children'),
               [Input('mu', 'value')])
 def display_value(value):
-    return 'Selected value: {}'.format(value)
+    return f': {int(value*100)}%'
 
 @app.callback(Output('sigma', 'children'),
 			  [Input('vol', 'value')])
 def display_value2(value):
-    return 'Selected value: {}'.format(value)
+    return f': {int(value*100)}%'
 
 @app.callback(Output('riskfree', 'children'),
 			  [Input('Rf', 'value')])
 def display_value3(value):
-    return 'Selected value: {}'.format(value)
+    return f': {int(value*100)}%'
+
+@app.callback(Output('matu', 'children'),
+			  [Input('T', 'value')])
+def display_value4(value):
+	if value==0.25 or value==0.5 or value==0.75:
+		return f": {int(value*12)} months"
+	elif value == 1:
+		return f': {value} year'
+	else:
+		return f': {value} years'
 
 @app.callback(
     Output("popover", "is_open"),
@@ -364,6 +454,9 @@ def toggle_popover(n, is_open):
     if n:
         return not is_open
     return is_open
+
+
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
