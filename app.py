@@ -85,8 +85,7 @@ def body():
                             value='The app',
                             children=html.Div(children=[
                             	html.Br(),
-                                html.H4('What is this app?', style={"text-align":"center"}
-                                ),
+                                html.H4('What is this app?', style={"text-align":"center"}),
                                 html.P(
                                     """
                                     This app computes the replication strategy of vanilla European options on a set of given input, and compares its value against the traditional Black-Scholes-Merton
@@ -108,10 +107,88 @@ def body():
                             ])
                         ),
                         dcc.Tab(
-                        	label="Methodology",
+                        	label="Model",
+                        	value="Model",
+                        	children=[html.Div(children=[
+                        		html.Br(),
+                        		html.H4("The Black-Scholes-Merton model", style={"text-align":"center"}),
+                        		html.P([
+                        			"""
+                        			The Black-Scholes-Merton model gives the price of European options from the famous partial differential equation known as the Black-Scholes equation:
+                        			$$\\frac{\partial V}{\partial t}+\\frac{\sigma^{2}S^{2}}{2}\\frac{\partial^{2}V}{\partial S^{2}}+rS\\frac{\partial V}{\partial S} = rV$$
+                        			Where \(S(t)\) is the price of the underlying asset at timet, \(V(S,t)\) the price of the option, \(\sigma\) the standard deviation of the underlying asset,
+                        			\(r\) the risk-free rate. Solving the PDE with terminal condition the payoff of the desired European-type option, one obtains as such the traditional call and put formulas, e.g. for a call
+                        			$$C_t = S_t\Phi(d_1)-Ke^{-r(T-t)}\Phi(d_2)$$ where \(\Phi\) is the standard normal cumulative distribution function, \(d_1\) and \(d_2\) some constants, and \(K\) the strike price of the option.
+                        			"""]),
+                        		html.Hr(),
+                        		html.H4("Model assumptions", style={"text-align":"center"}),
+                        		"Its main assumptions are:",
+                        		html.Ul([html.Li("Does not consider dividends and transaction costs"), 
+                        				 html.Li("The volatility and risk-free rate are assumed constant"),
+                        				 html.Li("Fraction of shares can be traded")]),
+                        		html.Hr(),
+                        		html.H4("Underlying asset dynamics", style={"text-align":"center"}),
+                        		html.P([
+                        			"""Under BSM, the underlying asset's dynamics are modeled with a geometric Brownian motion: 
+                        			$$dS = \mu Sdt+\sigma SdW$$ Where \(\mu\) is the drift and \(dW\) the increment of a Brownian motion."""])
+                        		])]),
+                        #
+                        #
+                        dcc.Tab(
+                        	label="Approach",
                         	value="Methodology",
-                        	children=[html.P(children='Will be checked later. Is this \(\pi\) inline with my sentance.'), html.P(children='$$ \lim_{t \\rightarrow \infty} \pi = 0$$')]),
-                        		
+                        	children=[html.Div(children=[
+                        		html.Br(),
+                        		html.H4("Methodology followed", style={"text-align":"center"}),
+                        		html.P([
+                        			"""
+                        			To prove that the BSM price is arbitrage-free, let us try to perfectly replicate it with a strategy. If the strategy is successfull, then 
+                        			the BSM price is unique and therefore arbitrage-free.
+                        			"""]),
+                        		html.Hr(),
+                        		html.H4("Replicating portfolio", style={"text-align":"center"}),
+                        		html.Label("Step 1", style={'font-weight': 'bold'}),
+                        		html.P([
+                        			"""
+                        			We infer the dynamics of the option price by applying Ito's lemma to the BSM PDE. Complying with Ito \(V_t=f(t,S_t)\):
+                        			$$dV_t=\\left(f_t(t,S_t)+\\frac{\sigma^2S_t^2}{2}f_{xx}(t,S_t)\\right)dt+f_x(t,S_t)dS_t$$ Where \(f_i(t,S_t)\) are the partial derivatives.
+                       				"""]),
+                        		html.Label("Step 2", style={'font-weight': 'bold'}),
+                       			html.P([
+                       				"""
+                       				The randomness embedded in \(S_t\), i.e. not knowing \(f(t,x)\), is taken care of by hedging \(dS_t\). This is better understood later on. Let us now  
+                       				create a portfolio \(\Pi\) composed of a cash account and an equity account. At inception, we buy \(\Delta_0\) shares at cost \(\Delta_0S_0\). The reminder \(\Pi_0-\Delta_0S_0\) is cash.
+                       				If the strategy is financially self-sufficiant, then $$d\Pi_t=r(\Pi_t-\Delta_tS_t)dt+\Delta_tdS_t$$ In other words, the only variation in the portfolio value is the risk-free received on 
+                       				the cash account and the underlying asset price variation.
+                       				"""]),
+                       			html.Label("Step 3", style={'font-weight': 'bold'}),
+                       			html.P([
+                       				"""
+                       				In other words, the created portfolio \(\Pi\) will perfectly replicate the option price if \(\Delta_t=f_x(t,S_t)\). Indeed, the BSM PDE can be found from equating the two equations with that.
+                       				"""]),
+                       			html.P([
+                       				"""
+                       				\(\Delta_t=f_x(t,S_t)\) indicates the number of shares to hold at any instant in order to replicate the BSM price. 
+                       				Deriving it, it is equal to \(\Delta_t = \nu\Phi(\nu d_1)\) Where \(\nu\) equals 1 for a call and -1 for a put.
+                       				"""]),
+                       			html.P([
+                       				"""
+                       				Holding \(\Delta_t = \nu\Phi(\nu d_1(t,S_t))\) at all times, we have found a strategy that perfectly replicates the BSM price, therefore proving it is unique and arbitrage-free.
+                       				"""]),
+                       			html.P([
+                       				"""
+                       				The delta-hedging strategy is visually summarized in this table by Prof. Vrins (LSM, 2020). 
+                       				"""]),
+                       			dbc.Button("Show me the table", id="bsm-table-target", color="primary", className="mr-1",),
+							    dbc.Popover(children=[dbc.PopoverHeader("delta-hedging strategy table"),
+							            	 		  dbc.PopoverBody([html.Img(src="data:image/png;base64,{}".format(base64.b64encode(open("bsm-math.png",'rb').read()).decode())    , style={"width": "250%"})]),
+							            	 		 ],
+							            	 id="bsm-table",
+							            	 is_open=False,
+							        		 target="bsm-table-target",),
+                        		])]),
+                     	#
+                     	#
                         dcc.Tab(
                             label='Input',
                             value='Input',
@@ -457,6 +534,15 @@ def toggle_popover(n, is_open):
 
 
 
+@app.callback(
+    Output("bsm-table", "is_open"),
+    [Input("bsm-table-target", "n_clicks")],
+    [State("bsm-table", "is_open")],
+)
+def toggle_popover(n, is_open):
+    if n:
+        return not is_open
+    return is_open
 
 if __name__ == '__main__':
     app.run_server(debug=True)
