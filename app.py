@@ -264,8 +264,8 @@ def body():
 										        	value=[], #ADD AN S WHEN GOING ONLINE
 										        	labelStyle={'font-weight': 'bold', "text-align":"left", 'display': 'inline-block'}
 										        	),
-                                            	])),],),
-        ], style={'float': 'left', 'width': '25%', 'margin':"30px"}),
+                                            	])),
+		],),], style={'float': 'left', 'width': '25%', 'margin':"30px"}),
 	])
 
 
@@ -378,7 +378,13 @@ def graph_rep_strat(data):
         title={'yref':"paper",
         		'y':1,
         		"yanchor":"bottom"},
-        margin={"t":15},
+        margin=dict(
+                l=0,
+                #r=50,
+                #b=100,
+                t=15,
+                #pad=4
+            ),
         xaxis={'title': f"Discretized time to maturity"},
         yaxis={'title': "Currency"},
         legend=dict(
@@ -418,7 +424,13 @@ def graph_portf_details(data):
         	name="Portfolio"),
     ],
     'layout': go.Layout(
-        margin={"t":15},
+        margin=dict(
+                l=0,
+                #r=50,
+                #b=100,
+                t=15,
+                #pad=4
+            ),
         xaxis={'title': f"Discretized time to maturity"},
         yaxis={'title': "Currency"},
         legend=dict(
@@ -445,7 +457,13 @@ def graph_portf_details(data):
         	),
     ],
     'layout': go.Layout(
-        margin={"t":15},
+        margin=dict(
+                l=0,
+                #r=50,
+                #b=100,
+                t=15,
+                #pad=4
+            ),
         xaxis={'title': f"Discretized time to maturity"},
         yaxis={'title': "Currency"},
         legend=dict(
@@ -485,7 +503,13 @@ def graph_portf_details(data):
     ],
     'layout': go.Layout(
         #height=400,
-        margin={"t":15},
+        margin=dict(
+                l=0,
+                #r=50,
+                #b=100,
+                t=15,
+                #pad=4
+            ),
         xaxis={'title': f"Discretized time to maturity"},
         yaxis={'title': "Currency"},
         legend=dict(
