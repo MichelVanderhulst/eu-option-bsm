@@ -378,13 +378,7 @@ def graph_rep_strat(data):
         title={'yref':"paper",
         		'y':1,
         		"yanchor":"bottom"},
-        margin=dict(
-                l=0,
-                #r=50,
-                #b=100,
-                t=15,
-                #pad=4
-            ),
+        margin={"t":15},
         xaxis={'title': f"Discretized time to maturity"},
         yaxis={'title': "Currency"},
         legend=dict(
@@ -424,13 +418,7 @@ def graph_portf_details(data):
         	name="Portfolio"),
     ],
     'layout': go.Layout(
-        margin=dict(
-                l=0,
-                #r=50,
-                #b=100,
-                t=15,
-                #pad=4
-            ),
+        margin={"t":15},
         xaxis={'title': f"Discretized time to maturity"},
         yaxis={'title': "Currency"},
         legend=dict(
@@ -457,13 +445,7 @@ def graph_portf_details(data):
         	),
     ],
     'layout': go.Layout(
-        margin=dict(
-                l=0,
-                #r=50,
-                #b=100,
-                t=15,
-                #pad=4
-            ),
+        margin={"t":15},
         xaxis={'title': f"Discretized time to maturity"},
         yaxis={'title': "Currency"},
         legend=dict(
@@ -503,13 +485,7 @@ def graph_portf_details(data):
     ],
     'layout': go.Layout(
         #height=400,
-        margin=dict(
-                l=0,
-                #r=50,
-                #b=100,
-                t=15,
-                #pad=4
-            ),
+        margin={"t":15},
         xaxis={'title': f"Discretized time to maturity"},
         yaxis={'title': "Currency"},
         legend=dict(
