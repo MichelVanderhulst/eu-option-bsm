@@ -58,17 +58,18 @@ def RepStrat_EU_Option_BSM_GBM_V5(CallOrPut, S,K,Rf,T,mu,vol,dt,RebalancingSteps
 
     ####### derivative/model strings specifics
     
-    phi= 0, 0, 0, r"$S_{i}=S_{i-1}e^{(\mu-\frac{\sigma^{2}}{2})\delta+\sigma*\sqrt{\delta}*z}$"
-    deltarebal = r"$\delta_{rebal}$"
+    phi= 0
+    #, 0, 0, r"$S_{i}=S_{i-1}e^{(\mu-\frac{\sigma^{2}}{2})\delta+\sigma*\sqrt{\delta}*z}$"
+    # deltarebal = r"$\delta_{rebal}$"
     if CallOrPut == "Call":
         phi = 1
-        BSformula = "$S\Phi(d_1) - Ke ^ {rT}\Phi(d_2)$ = "
-        Deltaformula = "$\Delta_t = \Phi(d_1(t,S_t))$"
+        # BSformula = "$S\Phi(d_1) - Ke ^ {rT}\Phi(d_2)$ = "
+        # Deltaformula = "$\Delta_t = \Phi(d_1(t,S_t))$"
     elif CallOrPut == "Put":
         phi = -1
-        sign = "-"
-        BSformula = "$K\Phi(-d_2)e^{rT}-S\Phi(-d_1) = $"
-        Deltaformula = "$\Delta_t = - \Phi(-d_1(t,S_t))$"
+        # sign = "-"
+        # BSformula = "$K\Phi(-d_2)e^{rT}-S\Phi(-d_1) = $"
+        # Deltaformula = "$\Delta_t = - \Phi(-d_1(t,S_t))$"
 
     if FixedOrPropor == ["FTC"]:
         Fixed, Propor = 1, 0

@@ -19,7 +19,6 @@ email = "michelvanderhulst@student.uclouvain.be"
 
 
 graph_rep_strat_text = ''' #### Replication strategy '''
-
 graph_port_details_text = ''' #### Portfolio composition'''
 graph_held_shares_text = ''' #### Held shares'''
 graph_sde_deriv_text = ''' #### Option greeks '''
@@ -57,8 +56,13 @@ def header():
                     	      	       		   	             dbc.PopoverBody(["Michel Vanderhulst",                     	    
                     	      	       		   	             				  f"\n {email}", 
                     	      	       		   	             				  html.Hr(), 
-                    	      	       		   	             				  "This app was built for my Master's Thesis, under the supervision of Prof. Frédéric Vrins (frederic.vrins@uclouvain.be)."]),],
+                    	      	       		   	             				  "This app was built for my Master's Thesis, under the supervision of Prof. Frédéric Vrins (frederic.vrins@uclouvain.be)."
+                    	      	       		   	             				  ],
+                    	      	       		   	             				  #style={'padding':5}
+                    	      	       		   	             				  ),
+                    	      	       		   	             ],
                     	      	          		   id="popover",
+                    	      	          		   #style={'width':'280px'},#,'height':'275px'},
                     	      	          		   is_open=False,
                     	      	          		   target="popover-target"),
                     	      		   ],
@@ -78,25 +82,30 @@ def body():
 	return html.Div(children=[
             html.Div(id='left-column', children=[
                 dcc.Tabs(
-                    id='tabs', value='The app',
+                    id='tabs', value='About this App',
                     children=[
                         dcc.Tab(
-                            label='The app',
-                            value='The app',
+                            label='About this App',
+                            value='About this App',
                             children=html.Div(children=[
                             	html.Br(),
                                 html.H4('What is this app?', style={"text-align":"center"}),
                                 html.P(
                                     """
-                                    This app computes the replication strategy of vanilla European options on a set of given input, and compares its value against the traditional Black-Scholes-Merton
+                                    This app computes the replication strategy of vanilla European options on a set of given inputs, and compares its value against the traditional Black-Scholes-Merton
                                     price.                           
                                     """
                                 ),
                                 html.P(
                                     """
-                                    The goal is to showcase that the price is truly arbitrage-free, as both the strategy and the Black-Scholes have the same values. 
+                                    The goal is to showcase that under the BSM model's assumptions (see "Model" tab), the price \(V_0\) given by the BSM formula is "arbitrage-free". Indeed, we show that in this case, 
+                                    it is possible to build a strategy that 
                                     """
                                 ),
+                                html.Ul([html.Li("Can be initiated with \(V_0\) cash at time \(0\)."), 
+                        				 html.Li('Is self-financing (i.e., no need to "feed" the strategy  with extra cash later'),
+                        				 html.Li("Will deliver exactly the payoff of the option at maturity")]),
+                                html.Hr(),
                                 html.P(
                                     """
                                     Read more about options : 
@@ -111,28 +120,35 @@ def body():
                         	value="Model",
                         	children=[html.Div(children=[
                         		html.Br(),
-                        		html.H4("The Black-Scholes-Merton model", style={"text-align":"center"}),
-                        		html.P([
-                        			"""
-                        			The Black-Scholes-Merton model gives the price of European options from the famous partial differential equation known as the Black-Scholes equation:
-                        			$$\\frac{\partial V}{\partial t}+\\frac{\sigma^{2}S^{2}}{2}\\frac{\partial^{2}V}{\partial S^{2}}+rS\\frac{\partial V}{\partial S} = rV$$
-                        			Where \(S(t)\) is the price of the underlying asset at timet, \(V(S,t)\) the price of the option, \(\sigma\) the standard deviation of the underlying asset,
-                        			\(r\) the risk-free rate. Solving the PDE with terminal condition the payoff of the desired European-type option, one obtains as such the traditional call and put formulas, e.g. for a call
-                        			$$C_t = S_t\Phi(d_1)-Ke^{-r(T-t)}\Phi(d_2)$$ where \(\Phi\) is the standard normal cumulative distribution function, \(d_1\) and \(d_2\) some constants, and \(K\) the strike price of the option.
-                        			"""]),
-                        		html.Hr(),
                         		html.H4("Model assumptions", style={"text-align":"center"}),
-                        		"Its main assumptions are:",
-                        		html.Ul([html.Li("Does not consider dividends and transaction costs"), 
+                        		"The BSM main assumptions are:",
+                        		html.Ul([html.Li("It does not consider dividends and transaction costs"), 
                         				 html.Li("The volatility and risk-free rate are assumed constant"),
                         				 html.Li("Fraction of shares can be traded")]),
-                        		html.Hr(),
-                        		html.H4("Underlying asset dynamics", style={"text-align":"center"}),
                         		html.P([
                         			"""Under BSM, the underlying asset's dynamics are modeled with a geometric Brownian motion: 
-                        			$$dS = \mu Sdt+\sigma SdW$$ Where \(\mu\) is the drift and \(dW\) the increment of a Brownian motion."""])
+                        			$$dS_t = \mu S_tdt+\sigma S_tdW_t$$ Where \(\mu\) is the drift, \(\sigma\) the volatility, and \(dW_t\) the increment of a Brownian motion."""]),
+                        		html.Hr(),
+                        		html.H4("Type of options", style={"text-align":"center"}),
+                        		html.P([
+                        			"""
+                        			The considered options are vanilla European options paying \(\psi(S_T)\) at maturity \(T\) where \(\psi(X)\) is the payoff function.
+                        			For a call, the payoff function is \(\psi(S_T)=max(0,S_T-K)\) and for a put \(\psi(S_T)=max(0,K-S_T\) where K is the strike price.
+                        			"""]),
+                        		html.Hr(),
+                        		html.H4("Option price", style={"text-align":"center"}),
+								html.P([
+                        			"""
+                        			The call and put BSM pricing formula are well-known:
+                        			$$C_t = S_t\Phi(d_1)-Ke^{-r(T-t)}\Phi(d_2)$$$$P_t = S_t\Phi(d_1)-Ke^{-r(T-t)}\Phi(d_2)$$ Where \(\Phi\) is the standard normal cumulative distribution function, 
+                        			\(d_1\) and \(d_2\) constants \(d_1=\\frac{1}{\sigma\sqrt{T-t}}\left[ln(\\frac{S_t}{K})+(r+\\frac{\sigma^2}{2})(T-t)\\right]\), \(d_2=d_1-\sigma\\sqrt{T-t}\) where
+                        			\(r\) is the risk-free rate. 
+									These pricing formula originate from the BSM partial differential equation, which is valid for any type of European option:
+                        			$$\\frac{\partial V_t}{\partial t}+\\frac{\sigma^{2}S^{2}_t}{2}\\frac{\partial^{2}V_t}{\partial S^{2}}+rS_t\\frac{\partial V_t}{\partial S} = rV_t$$
+                        			Where \(V_t=f(t,S_t)\) the price of the option at time t. To get the pricing formulas, solve the PDE with terminal condition the payoff \(\psi(X)\) of the desired European-type option.
+                        			"""]),
                         		])]),
-                        #
+                        # Where \(S_t\) is the price of the underlying asset at time t, \(\sigma\) the standard deviation of the underlying asset, \(r\) the risk-free rate. 
                         #
                         dcc.Tab(
                         	label="Approach",
@@ -158,9 +174,12 @@ def body():
                        				"""
                        				The randomness embedded in \(S_t\), i.e. not knowing \(f(t,x)\), is taken care of by hedging \(dS_t\). This is better understood later on. Let us now  
                        				create a portfolio \(\Pi\) composed of a cash account and an equity account. At inception, we buy \(\Delta_0\) shares at cost \(\Delta_0S_0\). The reminder \(\Pi_0-\Delta_0S_0\) is cash.
-                       				If the strategy is financially self-sufficiant, then $$d\Pi_t=r(\Pi_t-\Delta_tS_t)dt+\Delta_tdS_t$$ In other words, the only variation in the portfolio value is the risk-free received on 
-                       				the cash account and the underlying asset price variation.
+                       				If the strategy is financially self-sufficiant, then 
+                       				$$d\Pi_t=r(\Pi_t-\Delta_tS_t)dt+\Delta_tdS_t$$ 
+                       				This means that the change in portfolio value results from the interests earned on the cash account and the gains/losses obtained by holding the stock. When we rebalance the portfolio to hold more
+                       				(resp. less) shares, the cash is taken from (resp. placed on) the cash account. Notice that the cash account can go negative, in which case the interests will have to be paid (not received).                 
                        				"""]),
+                       			# In other words, the only variation in the portfolio value is the risk-free received on the cash account and the underlying asset price variation.
                        			html.Label("Step 3", style={'font-weight': 'bold'}),
                        			html.P([
                        				"""
@@ -173,7 +192,14 @@ def body():
                        				"""]),
                        			html.P([
                        				"""
-                       				Holding \(\Delta_t = \nu\Phi(\nu d_1(t,S_t))\) at all times, we have found a strategy that perfectly replicates the BSM price, therefore proving it is unique and arbitrage-free.
+                       				Holding \(\Delta_t = \nu\Phi(\nu d_1(t,S_t))\) at all times, we have found a strategy that perfectly replicates the BSM price, therefore proving it is the unique 
+                       				price that prevents arbitrage opportunities. 
+                       				"""]),
+                       			html.P([
+                       				""" 
+                       				Indeed, because it is possible to generate the option’s payoff by being given exactly the cash amount \(V_0\) given by the BSM 
+									formula, the option price must agree with \(V_0\). Otherwise, for \(k>0\), if the price of the option is \(V_0+k\), you can sell the option at \(V_0+k\), launch the strategy (which only requires \(V_0\)), and get a 
+									profit of \(k\) today. At maturity, the strategy will deliver exactly the amount that you have to pay to the option’s buyer. If \(k<0\), do the opposite (buy the option, sell the strategy).
                        				"""]),
                        			html.P([
                        				"""
@@ -190,14 +216,15 @@ def body():
                      	#
                      	#
                         dcc.Tab(
-                            label='Input',
-                            value='Input',
+                            label='Inputs',
+                            value='Inputs',
                             children=html.Div(children=[
                             					html.Br(),
                             					#
                             					html.P(
 				                                    """
-				                                    Hover your mouse over any input to get its definition.                           
+				                                    Place your mouse over any input to get its definition. Every time a parameter's value is changed, a new Brownian motion (hence the stock) is generated, 
+				                                    unless "Set random generation seed" is selected. To analyze the impact of a parameter, it is advised to check this option.                 
 				                                    """
 				                                ),
                             					dcc.Dropdown(
@@ -241,7 +268,7 @@ def body():
 										        		]),
 										        #
 										       	html.Div([
-										            	html.Label("Portfolio rebalancing", title=list_input["Rebalancing frequency"], style={'font-weight': 'bold', "text-align":"left",'width': '50%', 'display': 'inline-block'}),
+										            	html.Label("Time between two rebalancing (in dt unit)", title=list_input["Rebalancing frequency"], style={'font-weight': 'bold', "text-align":"left",'width': '50%', 'display': 'inline-block'}),
 										            	dcc.Input(id="dt_p", value=1, type='number', style={"width":"16%", 'display': 'inline-block'}),
 										        		]),
 										    	#
@@ -257,13 +284,12 @@ def body():
 										        	value=[], #ADD AN S WHEN GOING ONLINE
 										        	labelStyle={'padding':5, 'font-weight': 'bold', "text-align":"left", 'display': 'inline-block'}),
 										    	#
-										    	dcc.Checklist(
-										    		id = "seed",
-										       		options=[
-										        		{'label': 'Set random generation seed', 'value': "seed"}],
-										        	value=[], #ADD AN S WHEN GOING ONLINE
-										        	labelStyle={'font-weight': 'bold', "text-align":"left", 'display': 'inline-block'}
-										        	),
+										    	html.Label([dcc.Checklist(id = "seed",
+										       							  options=[
+										        								{'label': 'Set random generation seed', 'value': "seed"}],
+										        								value=[], #ADD AN S WHEN GOING ONLINE
+										        								labelStyle={'font-weight': 'bold', "text-align":"left", 'display': 'inline-block'}
+										        	)], title=list_input["Seed"]),
                                             	])),
 		],),], style={'float': 'left', 'width': '25%', 'margin':"30px"}),
 	])
@@ -335,6 +361,7 @@ def graph_rep_strat(data):
             x=discre_matu,
             y=StockPrice,
             mode='lines',
+            line={'dash': 'solid', 'color': 'light blue'},
             opacity=0.7,
             name="Stock price simulation (GBM)"),
         # go.Scatter(
@@ -348,24 +375,27 @@ def graph_rep_strat(data):
         	x=discre_matu,
         	y=OptionIntrinsicValue,
         	mode="lines",
+        	line={'dash': 'dash', 'color': 'green'},
         	opacity=0.7,
         	name="Option intrinsic value"),
         go.Scatter(
         	x=discre_matu,
         	y=OptionPrice,
         	mode="lines",
+        	line={'dash': 'solid', 'color': 'green'},
         	opacity=0.7,
         	name="Option price"),
-        go.Scatter(
-        	x=discre_matu,
-        	y=V_t,
-        	mode="lines",
-        	opacity=0.7,
-        	name="SDE simulation"),  
+        # go.Scatter(
+        # 	x=discre_matu,
+        # 	y=V_t,
+        # 	mode="lines",
+        # 	opacity=0.7,
+        # 	name="SDE simulation"),  
         go.Scatter(
         	x=discre_matu,
         	y=Portfolio,
         	mode="lines",
+        	line={'dash': 'solid', 'color': 'red'},
         	opacity=0.7,
         	name="Portfolio"),
         go.Scatter(
@@ -401,12 +431,14 @@ def graph_portf_details(data):
             x=discre_matu,
             y=EquityAccount,
             mode='lines',
+            line={'dash': 'solid', 'color': 'orange'},
             opacity=0.7,
             name="Equity account"),
         go.Scatter(
         	x=discre_matu,
         	y=CashAccount,
         	mode='lines',
+        	line={'dash': 'solid', 'color': 'purple'},
         	opacity=0.7,
         	name="Cash account",
         	),
@@ -414,6 +446,7 @@ def graph_portf_details(data):
         	x=discre_matu,
         	y=Portfolio,
         	mode="lines",
+        	line={'dash': 'solid', 'color': 'red'},
         	opacity=0.7,
         	name="Portfolio"),
     ],
@@ -447,7 +480,7 @@ def graph_portf_details(data):
     'layout': go.Layout(
         margin={"t":15},
         xaxis={'title': f"Discretized time to maturity"},
-        yaxis={'title': "Currency"},
+        yaxis={'title': "Shares"},
         legend=dict(
 	        x=0,
 	        y=1,

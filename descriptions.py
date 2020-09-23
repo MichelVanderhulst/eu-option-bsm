@@ -37,5 +37,6 @@ list_input = {"-": "-",
                                    "asset. Can be fixed or proportional to the number of underlying asset bought or "
                                    "sold. Typically a few basis points, i.e. less than a tenth of a percentage. Given"
                                    " the Black-Scholes model assumptions, where transactions costs are null, "
-                                   "considering them will decrease the quality of the replication strategy."
+                                   "considering them will decrease the quality of the replication strategy.",
+              "Seed": "The simulations are based on a random number generation. Fixing the seed will make the simulation constant. Useful for sensitivity analysis."
               }
