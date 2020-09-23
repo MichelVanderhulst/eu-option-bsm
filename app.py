@@ -22,7 +22,7 @@ graph_rep_strat_text = ''' #### Replication strategy '''
 graph_port_details_text = ''' #### Portfolio composition'''
 graph_held_shares_text = ''' #### Held shares'''
 graph_sde_deriv_text = ''' #### Option greeks '''
-
+lul = 5
 
 def header():
 	return html.Div(
