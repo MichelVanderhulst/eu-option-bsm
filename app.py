@@ -92,8 +92,7 @@ def body():
                                 html.H4('What is this app?', style={"text-align":"center"}),
                                 html.P(
                                     """
-                                    This app computes the replication strategy of vanilla European options on a set of given inputs, and compares its value against the traditional Black-Scholes-Merton
-                                    price.                           
+                                    This app computes the replication strategy of vanilla European options on a set of given inputs, in the Black-Scholes-Merton (BSM) framework.
                                     """
                                 ),
                                 html.P(
@@ -133,7 +132,7 @@ def body():
                         		html.P([
                         			"""
                         			The considered options are vanilla European options paying \(\psi(S_T)\) at maturity \(T\) where \(\psi(X)\) is the payoff function.
-                        			For a call, the payoff function is \(\psi(S_T)=max(0,S_T-K)\) and for a put \(\psi(S_T)=max(0,K-S_T\) where K is the strike price.
+                        			For a call, the payoff function is \(\psi(S_T)=max(0,S_T-K)\) and for a put \(\psi(S_T)=max(0,K-S_T)\) where K is the strike price.
                         			"""]),
                         		html.Hr(),
                         		html.H4("Option price", style={"text-align":"center"}),
@@ -147,6 +146,11 @@ def body():
                         			$$\\frac{\partial V_t}{\partial t}+\\frac{\sigma^{2}S^{2}_t}{2}\\frac{\partial^{2}V_t}{\partial S^{2}}+rS_t\\frac{\partial V_t}{\partial S} = rV_t$$
                         			Where \(V_t=f(t,S_t)\) the price of the option at time t. To get the pricing formulas, solve the PDE with terminal condition the payoff \(\psi(X)\) of the desired European-type option.
                         			"""]),
+								html.Hr(),
+								html.H4("Academical references", style={"text-align":"center"}),
+								"The main academical references used were:",
+								html.Ul([html.Li("Vrins, F.  (2020). Course notes for LLSM2226:  Credit & Interest Rates Risk. (Financial Engineering Program, Louvain School of Management, Université catholique de Louvain)"), 
+                        				 html.Li("Shreve, S. E. (2004). Stochastic calculus for finance II continuous-time models (2nd ed.). Springer Finance."),]),
                         		])]),
                         # Where \(S_t\) is the price of the underlying asset at time t, \(\sigma\) the standard deviation of the underlying asset, \(r\) the risk-free rate. 
                         #
@@ -160,6 +164,14 @@ def body():
                         			"""
                         			To prove that the BSM price is arbitrage-free, let us try to perfectly replicate it with a strategy. If the strategy is successfull, then 
                         			the BSM price is unique and therefore arbitrage-free.
+                        			"""]),
+                        		html.Hr(),
+                        		html.H4("Stock simulation", style={"text-align":"center"}),
+                        		html.P([
+                        			"""
+                        			We use the analytical solution to the GBM SDE, using Îto: \(S_t=S_0exp((\mu-\\frac{\sigma^2}{2})t+\sigma W_t)\). Then, suppose that the stock price
+                        			observations are equally spaced: \(t_i=i\delta, i \in \{1,2,\dots,n\}, n=T/\delta\)\(,\\forall \delta>0\)
+                        			This corresponds to $$S_{t+\delta}=S_texp((\mu-\\frac{\sigma^2}{2})\delta+\sigma\sqrt{\delta}Z), Z\sim \mathcal{N}(0,1)$$
                         			"""]),
                         		html.Hr(),
                         		html.H4("Replicating portfolio", style={"text-align":"center"}),
@@ -237,15 +249,17 @@ def body():
 										        #
 										        html.Div(children=[html.Label('Spot price', title=list_input["Spot price"], style={'font-weight': 'bold', "text-align":"center", "width":"25%",'display': 'inline-block'} ),
 										            			   dcc.Input(id="S", value=100, type='number', style={"width":"16%", 'display': 'inline-block'}),
-										            			   html.Label("Strike", title=list_input["Strike"], style={'font-weight': 'bold',"text-align":"center", "width":"25%",'display': 'inline-block'} ),
+									            			   	   html.Label("Strike", title=list_input["Strike"], style={'font-weight': 'bold',"text-align":"center", "width":"25%",'display': 'inline-block'} ),
 										            			   dcc.Input(id="K", value=100, type='number', style={"width":"16%", 'display': 'inline-block'}),
 										            			  ],),				       
 										    	#
+										    	# dcc.ConfirmDialogProvider(id="output-provider"),
+
 										    	html.Div(children=[html.Label("Drift", title=list_input["Drift"], style={'font-weight': 'bold', 'display': 'inline-block'}),
 										    			  		   html.Label(id="drift", style={'display': 'inline-block'}),
 										    			  		  ]),
 										    	#
-										    	dcc.Slider(id='mu', min=-0.30, max=0.30, value=0.10, step=0.01, marks={-0.30: '-30%', 0.30: '30%'}),
+										    	dcc.Slider(id='mu', min=-0.40, max=0.40, value=0.10, step=0.01, marks={-0.40: '-40%', 0.40: '40%'}),
 										    	#
 										    	html.Div([html.Label('Volatility', title=list_input["Volatility"], style={'font-weight': 'bold', "display":"inline-block"}),
 										    			  html.Label(id="sigma", style={"display":"inline-block"}),]),  
@@ -371,13 +385,13 @@ def graph_rep_strat(data):
         # 	opacity=0.7,
         # 	name=f"Strike = {K}",
         # 	),
-        go.Scatter(
-        	x=discre_matu,
-        	y=OptionIntrinsicValue,
-        	mode="lines",
-        	line={'dash': 'dash', 'color': 'green'},
-        	opacity=0.7,
-        	name="Option intrinsic value"),
+        # go.Scatter(
+        # 	x=discre_matu,
+        # 	y=OptionIntrinsicValue,
+        # 	mode="lines",
+        # 	line={'dash': 'dash', 'color': 'green'},
+        # 	opacity=0.7,
+        # 	name="Option intrinsic value"),
         go.Scatter(
         	x=discre_matu,
         	y=OptionPrice,
@@ -473,8 +487,9 @@ def graph_portf_details(data):
         	x=discre_matu,
         	y=f_x,
         	mode='lines',
+        	line={'dash': 'solid', 'color': 'light blue'},
         	opacity=0.7,
-        	name="Held shares",
+        	name="Held shares (Delta)",
         	),
     ],
     'layout': go.Layout(
@@ -497,6 +512,14 @@ def graph_portf_details(data):
 	return{
     'data': [
         go.Scatter(
+        	x=discre_matu,
+        	y=f_x,
+        	mode='lines',
+        	line={'dash': 'solid', 'color': 'light blue'},
+        	opacity=0.7,
+        	name="Delta",
+        	),
+        go.Scatter(
             x=discre_matu,
             y=f_t,
             mode='lines',
@@ -504,23 +527,20 @@ def graph_portf_details(data):
             name="Theta"),
         go.Scatter(
         	x=discre_matu,
-        	y=f_x,
-        	mode='lines',
-        	opacity=0.7,
-        	name="Delta",
-        	),
-        go.Scatter(
-        	x=discre_matu,
         	y=f_xx,
         	mode="lines",
         	opacity=0.7,
-        	name="Gamma"),
+        	name="Gamma",
+        	yaxis="y2"),
     ],
     'layout': go.Layout(
         #height=400,
         margin={"t":15},
         xaxis={'title': f"Discretized time to maturity"},
-        yaxis={'title': "Currency"},
+        yaxis={'title': "Delta & Theta"},
+        yaxis2={'title':'Gamma',
+        		'overlaying':'y',
+        		'side':'right'},
         legend=dict(
 	        x=0,
 	        y=1,
@@ -555,6 +575,25 @@ def display_value4(value):
 	else:
 		return f': {value} years'
 
+
+# @app.callback(Output('output-provider', 'message'),
+#               [Input('S', 'value')])
+# def update_output(value):
+# 	print("lol1")
+# 	if value < 0:
+# 		print("lol2")
+# 		return 'Danger danger! Are you sure you want to continue?'
+
+    # if not submit_n_clicks:
+    #     return ''
+    # return """
+    #     It was dangerous but we did it!
+    #     Submitted {} times
+    # """.format(submit_n_clicks)
+
+
+										    	
+
 @app.callback(
     Output("popover", "is_open"),
     [Input("popover-target", "n_clicks")],
@@ -566,7 +605,6 @@ def toggle_popover(n, is_open):
     return is_open
 
 
-
 @app.callback(
     Output("bsm-table", "is_open"),
     [Input("bsm-table-target", "n_clicks")],
@@ -576,6 +614,20 @@ def toggle_popover(n, is_open):
     if n:
         return not is_open
     return is_open
+
+
+# @app.callback(Output('output-provider', 'children'),
+#               [Input('danger-danger-provider', 'submit_n_clicks')])
+# def update_output(submit_n_clicks):
+#     if not submit_n_clicks:
+#         return ''
+#     return """
+#         It was dangerous but we did it!
+#         Submitted {} times
+#     """.format(submit_n_clicks)
+
+
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
