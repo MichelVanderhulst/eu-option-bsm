@@ -329,8 +329,6 @@ def display_unit_TC(value):
     else:
         return ""
 
-
-
 @app.callback(Output('download-link', 'href'), 
              [Input('memory-output', 'data')])
 def update_download_link(data):
@@ -344,6 +342,31 @@ def update_download_link(data):
     csv_string = df.to_csv(index=False, encoding="utf-8")
     csv_string = 'data:text/csv;charset=utf-8,' + urllib.parse.quote(csv_string)
     return csv_string
+
+
+
+@app.callback(
+    Output("popover", "is_open"),
+    [Input("popover-target", "n_clicks")],
+    [State("popover", "is_open")],
+)
+def toggle_popover(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+
+@app.callback(
+    Output("bsm-table", "is_open"),
+    [Input("bsm-table-target", "n_clicks")],
+    [State("bsm-table", "is_open")],
+)
+def toggle_popover(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
