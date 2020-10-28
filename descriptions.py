@@ -37,6 +37,7 @@ list_input = {"-": "-",
                                    "asset. Can be fixed or proportional to the number of underlying asset bought or "
                                    "sold. Typically a few basis points, i.e. less than a tenth of a percentage. Given"
                                    " the Black-Scholes model assumptions, where transactions costs are null, "
-                                   "considering them will decrease the quality of the replication strategy.",
-              "Seed": "The simulations are based on a random number generation. Fixing the seed will make the simulation constant. Useful for sensitivity analysis."
+                                   "considering them will decrease the quality of the replication strategy. If left empty, it is assumed null.",
+              "Seed": "The simulations are based on a random number generation. Currently, the generation is fixed, ie the Brownian motion behind"
+                     " the stock random dynamics is fixed, and permits sensitivity analysis. Checking this will generate a new Brownian motion every time you change an input."
               }
