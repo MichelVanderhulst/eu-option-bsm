@@ -8,6 +8,7 @@
 
 import numpy as np
 from scipy.stats import norm
+# import pandas as pd
 
 
 def d1(S, strike, Rf, T, t, vol):
@@ -55,10 +56,10 @@ def RepStrat_EU_Option_BSM_GBM_V5(CallOrPut, S,K,Rf,T,mu,vol,dt,RebalancingSteps
     arguments = [CallOrPut, S,K,Rf,T,mu,vol,dt,RebalancingSteps, FixedOrPropor, seed] #TC skipped bc can just assume its 0
     for arg in arguments:
         if arg == None:
-            return [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0]
+            return [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0]
 
     if  S < 0 or K < 0 or dt <= 0 or RebalancingSteps < 1 or RebalancingSteps > T/dt:
-        return [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0]
+        return [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0]
         #dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx
     if TransactionCosts == None:
         TransactionCosts = 0
@@ -121,6 +122,8 @@ def RepStrat_EU_Option_BSM_GBM_V5(CallOrPut, S,K,Rf,T,mu,vol,dt,RebalancingSteps
         np.zeros(nt), np.zeros(nt), np.zeros(nt), np.zeros(nt), np.zeros(nt), np.zeros(nt), np.zeros(nt), np.zeros(nt),\
         np.zeros(nt), np.zeros(nt)
     dW = np.sqrt(dt) * np.random.randn(nt - 1)  # Increments of Brownian Motion
+
+    cash_bfr, cash_aft, equi_bfr, equi_aft = np.zeros(nt), np.zeros(nt), np.zeros(nt), np.zeros(nt)
     #####################                      END accounts initialization                         #####################
     ####################################################################################################################
 
@@ -138,6 +141,8 @@ def RepStrat_EU_Option_BSM_GBM_V5(CallOrPut, S,K,Rf,T,mu,vol,dt,RebalancingSteps
     f_xx[0] = Gamma(StockPrice[0], K, Rf, T, t_rebal[0], vol)
     f_t[0] = Theta(StockPrice[0], K, Rf, T, t_rebal[0], vol, phi)
     V_t[0] = OptionPrice[0]
+
+    cash_bfr[0], cash_aft[0], equi_bfr[0], equi_aft[0] = OptionPrice[0], CashAccount[0], 0, EquityAccount[0]
 
     #######  0 < t <= T
     # Reminder : nt = len(np.arange(0,T+dt,dt))
@@ -161,12 +166,16 @@ def RepStrat_EU_Option_BSM_GBM_V5(CallOrPut, S,K,Rf,T,mu,vol,dt,RebalancingSteps
             CashAccount[i] = CashAccount[i - 1] * (1 + Rf * dt_rebal)
             EquityAccount[i] = f_x[i - 1] * StockPrice[i]
 
+            cash_bfr[i], equi_bfr[i] = CashAccount[i], EquityAccount[i]
+
             ####### After reblancing
             # computing delta (# of shares to hold at this time t), ensuring equivalence of portfolio and selling/buying
             # shares to get delta and updating EquityAccount value with current Delta
             f_x[i] = Delta(StockPrice[i], K, Rf, T, t_rebal[int(i/RebalancingSteps)], vol, phi)
             CashAccount[i] = CashAccount[i] + EquityAccount[i] - f_x[i] * StockPrice[i] - abs(f_x[i] - f_x[i - 1]) * (Fixed * TransactionCosts + StockPrice[i] * Propor * TransactionCosts)
             EquityAccount[i] = f_x[i] * StockPrice[i]
+
+            cash_aft[i], equi_aft[i] = CashAccount[i], EquityAccount[i]
 
 
             f_xx[i] = Gamma(StockPrice[i], K, Rf, T, t_rebal[int(i / RebalancingSteps)], vol)
@@ -182,14 +191,23 @@ def RepStrat_EU_Option_BSM_GBM_V5(CallOrPut, S,K,Rf,T,mu,vol,dt,RebalancingSteps
             f_xx[i] = f_xx[i - 1]
             f_t[i] = f_t[i - 1]
             V_t[i] = V_t[i - 1]
+
+            cash_bfr[i], cash_aft[i], equi_bfr[i], equi_aft[i] = cash_bfr[i-1], cash_aft[i-1], equi_bfr[i-1], equi_aft[i-1]
     #####################                  END replication strategy                                #####################
     ####################################################################################################################
+
+    # df = pd.DataFrame({"Stock price":StockPrice, "Option intrinsic value":OptionIntrinsicValue, "Option price":OptionPrice,
+    #                            "Delta":f_x, "Cash before":cash_bfr, "Equity before":equi_bfr, "Portfolio before":cash_bfr+equi_bfr,
+    #                            "Cash after":cash_aft, "Equity after":equi_aft, "Portfolio after":cash_aft+equi_aft, "Replication strategy error":OptionPrice-cash_aft-equi_aft},
+    #                      index=t)
 
     ####################################################################################################################
     #####################                  START graphics                                          #####################
 
 
-    return dt, K, a, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, EquityAccount+CashAccount, V_t, f_t, f_x, f_xx
+    return dt, K, a, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, EquityAccount+CashAccount, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t
+
+
 
 
 

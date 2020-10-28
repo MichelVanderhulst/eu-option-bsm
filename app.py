@@ -10,6 +10,9 @@ from layout_header import header
 from layout_body_graphs import body, graphs
 
 
+import pandas as pd
+import urllib.parse
+
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML', "./assets/mathjax.js"])
 server = app.server
 
@@ -40,15 +43,15 @@ app.layout = html.Div(
      Input("FixedOrPropor", "value"),
      Input("seed", "value"),])
 def get_rep_strat_data(CallOrPut, S, K, Rf,T,mu,vol,dt,dt_p, TransactionCosts, FixedOrPropor, seed):
-    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx = RepStrat_EU_Option_BSM_GBM_V5(CallOrPut, S, K, Rf, T, mu, vol, dt, dt_p, TransactionCosts, FixedOrPropor, seed)         
-    return dt, K, list(discre_matu), StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx
+    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t = RepStrat_EU_Option_BSM_GBM_V5(CallOrPut, S, K, Rf, T, mu, vol, dt, dt_p, TransactionCosts, FixedOrPropor, seed)          
+    return dt, K, list(discre_matu), StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t
 
 
 @app.callback(
     Output('replication', 'figure'),
     [Input('memory-output', 'data'),])
 def graph_rep_strat(data):
-    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx = data
+    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t = data
 
     return{
     'data': [
@@ -119,7 +122,7 @@ def graph_rep_strat(data):
     Output('port_details', 'figure'),
     [Input('memory-output', 'data'),])
 def graph_portf_details(data):
-    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx = data
+    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t = data
     return{
     'data': [
         go.Scatter(
@@ -161,7 +164,7 @@ def graph_portf_details(data):
     Output('held_shares', 'figure'),
     [Input('memory-output', 'data'),])
 def graph_portf_details(data):
-    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx = data
+    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t = data
     return{
     'data': [
         go.Scatter(
@@ -189,7 +192,7 @@ def graph_portf_details(data):
     Output('sde_deriv', 'figure'),
     [Input('memory-output', 'data'),])
 def graph_portf_details(data):
-    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx = data
+    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t = data
     return{
     'data': [
         go.Scatter(
@@ -316,8 +319,6 @@ def display_value_TC(value):
         return 0
 
 
-
-
 @app.callback(Output('unit_TC', 'children'),
               [Input('FixedOrPropor', 'value')])
 def display_unit_TC(value):
@@ -330,31 +331,24 @@ def display_unit_TC(value):
 
 
 
+@app.callback(Output('download-link', 'href'), 
+             [Input('memory-output', 'data')])
+def update_download_link(data):
+    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t = data
+    cash_bfr, cash_aft, equi_bfr, equi_aft, t = np.array(cash_bfr), np.array(cash_aft), np.array(equi_bfr), np.array(equi_aft), np.array(t)
 
-@app.callback(
-    Output("popover", "is_open"),
-    [Input("popover-target", "n_clicks")],
-    [State("popover", "is_open")],)
-def toggle_popover(n, is_open):
-    if n:
-        return not is_open
-    return is_open
-
-
-@app.callback(
-    Output("bsm-table", "is_open"),
-    [Input("bsm-table-target", "n_clicks")],
-    [State("bsm-table", "is_open")],
-)
-def toggle_popover(n, is_open):
-    if n:
-        return not is_open
-    return is_open
-
+    df = pd.DataFrame({"Time (in dt)":t,"Stock price":StockPrice, "Option intrinsic value":OptionIntrinsicValue, "Option price":OptionPrice,
+                               "Delta":f_x, "Cash before":cash_bfr, "Equity before":equi_bfr, "Portfolio before":cash_bfr+equi_bfr,
+                               "Cash after":cash_aft, "Equity after":equi_aft, "Portfolio after":cash_aft+equi_aft, "Replication strategy error":OptionPrice-cash_aft-equi_aft})
+    df = df.round(6)
+    csv_string = df.to_csv(index=False, encoding="utf-8")
+    csv_string = 'data:text/csv;charset=utf-8,' + urllib.parse.quote(csv_string)
+    return csv_string
 
 if __name__ == '__main__':
     app.run_server(debug=True)
-    
+
+
 # import dash
 # import dash_core_components as dcc
 # import dash_html_components as html
