@@ -245,13 +245,11 @@ def body():
                           #
                           html.Label(children=[dcc.Checklist(id = "seed",
                                                    options=[{'label': 'New Brownian motion', 'value': "seed"}],
-                                                   value=[], #ADD AN S WHEN GOING ONLINE
+                                                   value=[], 
                                                    labelStyle={'font-weight': 'bold', "text-align":"left", 'display': 'inline-block'}
                                                    )], 
                                      title=list_input["Seed"]),
-
-
-
+                          #
                           html.Br(),
                           html.A('Download Data', id='download-link', download="rawdata.csv", href="", target="_blank"),
                           html.P("""Note: requires excel decimal separator to be a dot.""", style={"font-size":12}),
