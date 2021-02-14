@@ -13,7 +13,10 @@ from layout_body_graphs import body, graphs
 import pandas as pd
 import urllib.parse
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML', "./assets/mathjax.js"])
+app = dash.Dash(__name__,
+	           external_stylesheets=[dbc.themes.BOOTSTRAP], 
+	           external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML', "./assets/mathjax.js"]
+	           )
 server = app.server
 
 
