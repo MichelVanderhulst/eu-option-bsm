@@ -64,7 +64,7 @@ def header():
                                        html.Div(children=[dbc.Button("About", id="popover-target", outline=True, style={"color":"white", 'border': 'solid 1px white'}),
                                                           dbc.Popover(children=[dbc.PopoverHeader("About"),
                                                                                  dbc.PopoverBody(["Michel Vanderhulst",                             
-                                                                                        f"\n {email}", 
+                                                                                        f"michelvanderhulst@student.uclouvain.be", 
                                                                                         html.Hr(), 
                                                                                         "This app was built for my Master's Thesis, under the supervision of Prof. Frédéric Vrins (frederic.vrins@uclouvain.be)."]),],
                                                                        id="popover",
