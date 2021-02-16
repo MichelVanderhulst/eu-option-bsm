@@ -41,3 +41,4 @@ list_input = {"-": "-",
               "Seed": "The simulations are based on a random number generation. Currently, the generation is fixed, ie the Brownian motion behind"
                      " the stock random dynamics is fixed, and permits sensitivity analysis. Checking this will generate a new Brownian motion every time you change an input."
               }
+#test
