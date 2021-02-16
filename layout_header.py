@@ -57,7 +57,7 @@ def header():
                                               ),
 
                                        html.Div(children=[html.H4("European option replication strategy app"),
-                                                          html.H5("Black-Scholes-Merton model")
+                                                          html.H5("Black-Scholes-Merton modelBNJR NIELS")
                                                           ],
                                                  style={"display":"inline-block", "font-family":'sans-serif','transform':'translateY(+25%)', "margin":"1px"}),
 
