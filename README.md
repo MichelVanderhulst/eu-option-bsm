@@ -1,6 +1,6 @@
 # Web application to price & hedge European options
 
-Python-based app that pedagogically explains the hedging of European options
+Python-based app that pedagogically explains the hedging of European options using the Black-Scholes-Merton model
 
 ## Visit the web app
 

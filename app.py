@@ -65,13 +65,14 @@ def graph_rep_strat(data):
             line={'dash': 'solid', 'color': 'light blue'},
             opacity=0.7,
             name="Stock price simulation (GBM)"),
-        # go.Scatter(
-        #   x=discre_matu,
-        #   y=[K]*len(discre_matu),
-        #   mode='lines',
-        #   opacity=0.7,
-        #   name=f"Strike = {K}",
-        #   ),
+        go.Scatter(
+          x=discre_matu,
+          y=[K]*len(discre_matu),
+          mode='lines', 
+          line={'dash': 'dash'},
+          opacity=0.7,
+          name=f"Strike price",
+          ),
         # go.Scatter(
         #   x=discre_matu,
         #   y=OptionIntrinsicValue,

@@ -89,13 +89,15 @@ def RepStrat_EU_Option_BSM_GBM_V5(CallOrPut, S,K,Rf,T,mu,vol,dt,RebalancingSteps
         Fixed, Propor = 0, 1 
         TransactionCosts = TransactionCosts / 100
 
-    # Seed is always fixed. 
+    # seed is always fixed
     np.random.seed(1)
     # unless user wants new seed everytime
     if seed == ["seed"]:
-        np.random.seed(np.random.randint(low=2, high=50000))
+        np.random.seed(None)
+        a = np.random.randint(low=2, high=500000)
+        np.random.seed(a)
+        np.random.seed(np.random.randint(low=2, high=500000))
     
-
 
     ####### Discretization of maturity period
     # The matrix length depends on T and dt chosen by user.
