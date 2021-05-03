@@ -35,11 +35,17 @@ def body():
                                          html.Li("Will deliver exactly the payoff of the option at maturity")
                                         ]),
                                 html.Hr(),
+                                html.H4("Type of options", style={"text-align":"center"}),
+                                html.P([
+                              		"""
+                              		The considered options are European options paying \(\psi(S_T)\) at maturity \(T\) where \(\psi(X)\) is the payoff function.
+                              		For a call, the payoff function is \(\psi(S_T)=max(0,S_T-K)\) and for a put \(\psi(S_T)=max(0,K-S_T)\) where K is the strike price.
+                              		"""]),
+                                html.Hr(),
                                 html.P(
                                     """
                                     Read more about options : 
                                     https://en.wikipedia.org/wiki/Option_(finance)
-                                    
                                     """
                                       ),
                                                         ])
@@ -57,13 +63,6 @@ def body():
                             html.P([
                               """Under BSM, the underlying asset's dynamics are modeled with a geometric Brownian motion: 
                               $$dS_t = \mu S_tdt+\sigma S_tdW_t$$ Where \(\mu\) is the drift, \(\sigma\) the volatility, and \(dW_t\) the increment of a Brownian motion."""]),
-                            html.Hr(),
-                            html.H4("Type of options", style={"text-align":"center"}),
-                            html.P([
-                              """
-                              The considered options are vanilla European options paying \(\psi(S_T)\) at maturity \(T\) where \(\psi(X)\) is the payoff function.
-                              For a call, the payoff function is \(\psi(S_T)=max(0,S_T-K)\) and for a put \(\psi(S_T)=max(0,K-S_T)\) where K is the strike price.
-                              """]),
                             html.Hr(),
                             html.H4("Option price", style={"text-align":"center"}),
                             html.P([
@@ -85,8 +84,8 @@ def body():
                         # Where \(S_t\) is the price of the underlying asset at time t, \(\sigma\) the standard deviation of the underlying asset, \(r\) the risk-free rate. 
                         #
                         dcc.Tab(
-                          label="Approach",
-                          value="Methodology",
+                          label="Appro-ach",
+                          value="Appro-ach",
                           children=[html.Div(children=[
                             html.Br(),
                             html.H4("Methodology followed", style={"text-align":"center"}),
@@ -149,7 +148,7 @@ def body():
                               """]),
                             dbc.Button("Show me the table", id="bsm-table-target", color="primary", className="mr-1",),
                             dbc.Popover(children=[dbc.PopoverHeader("delta-hedging strategy table"),
-                                  dbc.PopoverBody([html.Img(src="data:image/png;base64,{}".format(base64.b64encode(open("bsm-math.png",'rb').read()).decode())    , style={"width": "250%"})]),
+                                  dbc.PopoverBody([html.Img(src="data:image/png;base64,{}".format(base64.b64encode(open("bsm-math.png",'rb').read()).decode()), style={"width": "250%"})]),
                                  ],
                              id="bsm-table",
                              is_open=False,
@@ -210,17 +209,17 @@ def body():
                                      marks={0.25:"3 months", 5:"5 years"}, step=0.25, value=3),
                           #
                           html.Br(),
-                            html.Div([
+                          html.Div([
                                   html.Label('Discretization step', title=list_input["Discretization step"], style={'font-weight': 'bold', "text-align":"left",'width': '50%', 'display': 'inline-block'}),
                                   dcc.Input(id="dt", value=0.01, type='number', style={"width":"16%", 'display': 'inline-block'}),
                                   html.P("",id="message_dt", style={"font-size":12, "color":"red", 'width': '34%', "text-align":"left", 'display': 'inline-block'})
-                                ]),
+                                  ]),
                             #                     
-                            html.Div([
+                          html.Div([
                                   html.Label("Time between two rebalancing (in dt unit)", title=list_input["Rebalancing frequency"], style={'font-weight': 'bold', 'width': '50%', "text-align":"left", 'display': 'inline-block'}),
                                   dcc.Input(id="dt_p", value=1, type='number', style={"width":"16%", 'display': 'inline-block'}),
                                   html.P("",id="message_dt_p", style={"font-size":12, "color":"red", 'width': '34%', "text-align":"left", 'display': 'inline-block'})
-                                    ]),
+                                  ]),
                             #
                           html.Div([html.Label('Transaction costs', title=list_input["Transaction costs"], style={'font-weight': 'bold', "text-align":"left",'width': '50%', 'display': 'inline-block'}),
                                     dcc.Input(id="TransactionCosts", value=0, type='number', style={"width":"16%", 'display': 'inline-block'}),
@@ -235,13 +234,7 @@ def body():
                                          value='NTC',
                                          labelStyle={'padding':5, 'font-weight': 'bold', 'display': 'inline-block'}
                                         ),  
-                          # dcc.Checklist(
-                          #   id = "FixedOrPropor",
-                         #      options=[
-                         #        {'label': 'Fixed TC', 'value': 'FTC'},
-                         #        {'label': 'Proportional TC', 'value': 'PTC'}],
-                         #      value=[], #ADD AN S WHEN GOING ONLINE
-                         #      labelStyle={'padding':5, 'font-weight': 'bold', "text-align":"left", 'display': 'inline-block'}),
+
                           #
                           html.Label(children=[dcc.Checklist(id = "seed",
                                                    options=[{'label': 'New Brownian motion', 'value': "seed"}],

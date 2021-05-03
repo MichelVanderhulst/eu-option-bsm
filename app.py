@@ -1,24 +1,29 @@
+####################################################################
+################## LIBRARIES IMPORT ################################
+## APP-RELATED LIBRARIES
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 import plotly.graph_objs as go
-from EU_Option_BSM_GBM_V5 import *
-
+import pandas as pd
+import urllib.parse
 from layout_header import header
 from layout_body_graphs import body, graphs
 
+## REP. STRAT. FUNCTION
+from EU_Option_BSM_GBM_V5 import *
+####################################################################
 
-import pandas as pd
-import urllib.parse
 
-app = dash.Dash(__name__,
-	           external_stylesheets=[dbc.themes.BOOTSTRAP], 
-	           external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML', "./assets/mathjax.js"]
-	           )
+####################################################################
+################## CREATING THE APP ################################ 
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], 
+	                      external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML', "./assets/mathjax.js"],
+	                      meta_tags=[{"content": "width=device-width"}]
+	                      )
 server = app.server
-
 
 app.layout = html.Div(
                 id='main_page',
@@ -29,8 +34,12 @@ app.layout = html.Div(
                     graphs(),
                          ],
                      )
+#####################################################################
 
+#####################################################################
+################## APP CALLBACKS : DYNAMICITY & INTERACTIVITY ######
 
+##  RUNNING THE REPLICATION STRATEGY & IMPORTING THE VALUES
 @app.callback(
     Output('memory-output', 'data'),
     [Input('CallOrPut', 'value'),
@@ -49,7 +58,7 @@ def get_rep_strat_data(CallOrPut, S, K, Rf,T,mu,vol,dt,dt_p, TransactionCosts, F
     dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t = RepStrat_EU_Option_BSM_GBM_V5(CallOrPut, S, K, Rf, T, mu, vol, dt, dt_p, TransactionCosts, FixedOrPropor, seed)          
     return dt, K, list(discre_matu), StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t
 
-
+## PLOT 1 : REP STRAT + OPTION PRICE + STOCK SIMULATION
 @app.callback(
     Output('replication', 'figure'),
     [Input('memory-output', 'data'),])
@@ -121,7 +130,7 @@ def graph_rep_strat(data):
     )
 }
 
-
+## PLOT 2 : REP STRAT PORTFOLIO DETAILS (Cash account, equity account)
 @app.callback(
     Output('port_details', 'figure'),
     [Input('memory-output', 'data'),])
@@ -164,6 +173,7 @@ def graph_portf_details(data):
     )
 }
 
+## PLOT 3 : HELD SHARES AT ALL TIMES IN EQUITY ACCOUNT
 @app.callback(
     Output('held_shares', 'figure'),
     [Input('memory-output', 'data'),])
@@ -192,6 +202,7 @@ def graph_portf_details(data):
     )
 }
 
+## PLOT 4 : OPTION GREEKS
 @app.callback(
     Output('sde_deriv', 'figure'),
     [Input('memory-output', 'data'),])
@@ -238,7 +249,7 @@ def graph_portf_details(data):
 }
 
 
-
+## DOUBLE-CHECKING USER INPUT
 @app.callback(Output('message_S', 'children'),
               [Input('S', 'value')])
 def check_input_S(S):
@@ -246,8 +257,6 @@ def check_input_S(S):
         return f'Cannot be lower than 0.'
     else:
         return ""
-
-
 
 @app.callback(Output('message_K', 'children'),
               [Input('K', 'value')])
@@ -257,51 +266,16 @@ def check_input_K(K):
     else:
         return ""
 
-
-
-@app.callback(Output('drift', 'children'),
-              [Input('mu', 'value')])
-def display_value_mu(value):
-    return f': {int(value*100)}%'
-
-
-
-@app.callback(Output('sigma', 'children'),
-              [Input('vol', 'value')])
-def display_value_vol(value):
-    return f': {int(value*100)}%'
-
-
-
-@app.callback(Output('riskfree', 'children'),
-              [Input('Rf', 'value')])
-def display_value_Rf(value):
-    return f': {int(value*100)}%'
-
-
-
-@app.callback(Output('matu', 'children'),
-              [Input('T', 'value')])
-def display_value_T(value):
-    if value==0.25 or value==0.5 or value==0.75:
-        return f": {int(value*12)} months"
-    elif value == 1:
-        return f': {value} year'
-    else:
-        return f': {value} years'       
-
-
 @app.callback(Output('message_dt', 'children'),
               [Input('T', 'value'),
               Input("dt", "value")])
 def check_input_dt(T, dt):
     if dt<0.001:
-        return f'Lower than 0.001 will be very slow.'
+        return f'Lower than 0.001 will make the app run very slowly'
     elif dt > T:
         return f"Cannot be higher than {T}"
     else:
         return ""   
-
 
 @app.callback(Output('message_dt_p', 'children'),
               [Input('T', 'value'),
@@ -313,15 +287,39 @@ def check_input_dt_p(T, dt, dt_p):
     elif dt_p > (T/dt):
         return f"Cannot be higher than {T/dt}"
     else:
-        return ""   
+        return ""  
 
-                
+## INPUTS VISUALS
+@app.callback(Output('drift', 'children'),
+              [Input('mu', 'value')])
+def display_value_mu(value):
+    return f': {int(value*100)}%'
+
+@app.callback(Output('sigma', 'children'),
+              [Input('vol', 'value')])
+def display_value_vol(value):
+    return f': {int(value*100)}%'
+
+@app.callback(Output('riskfree', 'children'),
+              [Input('Rf', 'value')])
+def display_value_Rf(value):
+    return f': {int(value*100)}%'
+
+@app.callback(Output('matu', 'children'),
+              [Input('T', 'value')])
+def display_value_T(value):
+    if value==0.25 or value==0.5 or value==0.75:
+        return f": {int(value*12)} months"
+    elif value == 1:
+        return f': {value} year'
+    else:
+        return f': {value} years'       
+
 @app.callback(Output('TransactionCosts', 'value'),
               [Input('FixedOrPropor', 'value')])
 def display_value_TC(value):
     if value=="NTC":
         return 0
-
 
 @app.callback(Output('unit_TC', 'children'),
               [Input('FixedOrPropor', 'value')])
@@ -333,6 +331,7 @@ def display_unit_TC(value):
     else:
         return ""
 
+## EXCEL EXPORT
 @app.callback(Output('download-link', 'href'), 
              [Input('memory-output', 'data')])
 def update_download_link(data):
@@ -347,8 +346,7 @@ def update_download_link(data):
     csv_string = 'data:text/csv;charset=utf-8,' + urllib.parse.quote(csv_string)
     return csv_string
 
-
-
+## MISC. STUFF
 @app.callback(
     Output("popover", "is_open"),
     [Input("popover-target", "n_clicks")],
@@ -358,7 +356,6 @@ def toggle_popover(n, is_open):
     if n:
         return not is_open
     return is_open
-
 
 @app.callback(
     Output("bsm-table", "is_open"),
@@ -371,6 +368,6 @@ def toggle_popover(n, is_open):
     return is_open
 
 
-
+## MAIN FUNCTION
 if __name__ == '__main__':
     app.run_server(debug=True)
