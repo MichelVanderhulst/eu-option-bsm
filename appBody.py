@@ -1,12 +1,16 @@
+# Dash app libraries
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
-from descriptions import list_input
 import base64
 
+# Rep strat input descriptions
+from inputDescriptions import list_input
 
 
+
+# Creating the app body
 def body():
   return html.Div(children=[
             html.Div(id='left-column', children=[
@@ -81,7 +85,6 @@ def body():
                               html.Ul([html.Li("Vrins, F.  (2020). Course notes for LLSM2226:  Credit & Interest Rates Risk. (Financial Engineering Program, Louvain School of Management, Université catholique de Louvain)"), 
                                        html.Li("Shreve, S. E. (2004). Stochastic calculus for finance II continuous-time models (2nd ed.). Springer Finance."),]),
                             ])]),
-                        # Where \(S_t\) is the price of the underlying asset at time t, \(\sigma\) the standard deviation of the underlying asset, \(r\) the risk-free rate. 
                         #
                         dcc.Tab(
                           label="Appro-ach",
@@ -120,7 +123,7 @@ def body():
                               This means that the change in portfolio value results from the interests earned on the cash account and the gains/losses obtained by holding the stock. When we rebalance the portfolio to hold more
                               (resp. less) shares, the cash is taken from (resp. placed on) the cash account. Notice that the cash account can go negative, in which case the interests will have to be paid (not received).                 
                               """]),
-                            # In other words, the only variation in the portfolio value is the risk-free received on the cash account and the underlying asset price variation.
+
                             html.Label("Step 3", style={'font-weight': 'bold'}),
                             html.P([
                               """
@@ -148,7 +151,7 @@ def body():
                               """]),
                             dbc.Button("Show me the table", id="bsm-table-target", color="primary", className="mr-1",),
                             dbc.Popover(children=[dbc.PopoverHeader("delta-hedging strategy table"),
-                                  dbc.PopoverBody([html.Img(src="data:image/png;base64,{}".format(base64.b64encode(open("bsm-math.png",'rb').read()).decode()), style={"width": "250%"})]),
+                                  dbc.PopoverBody([html.Img(src="data:image/png;base64,{}".format(base64.b64encode(open("./pictures/bsm-math.png",'rb').read()).decode()), style={"width": "250%"})]),
                                  ],
                              id="bsm-table",
                              is_open=False,
@@ -253,6 +256,7 @@ def body():
 
 
 
+# Creating the app graphs
 def graphs():
   return html.Div(id='right-column', 
           children=[

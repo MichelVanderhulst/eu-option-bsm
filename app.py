@@ -7,24 +7,29 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 import plotly.graph_objs as go
+
+# Importing app header, body and graphs from the other .py scripts
+from appHeader import header
+from appBody import body, graphs
+
+## Rep strat math function
+from EU_Option_BSM_GBM import *
+
+# Allowing rep strat excel export
 import pandas as pd
 import urllib.parse
-from layout_header import header
-from layout_body_graphs import body, graphs
-
-## REP. STRAT. FUNCTION
-from EU_Option_BSM_GBM_V5 import *
 ####################################################################
 
 
 ####################################################################
 ################## CREATING THE APP ################################ 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], 
-	                      external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML', "./assets/mathjax.js"],
-	                      meta_tags=[{"content": "width=device-width"}]
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], #modern-looking buttons, sliders, etc
+	                      external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML', "./assets/mathjax.js"], #LaTeX in app
+	                      meta_tags=[{"content": "width=device-width"}] # app width adapts itself to the user device
 	                      )
 server = app.server
 
+# building the app layout from header, body & graphs
 app.layout = html.Div(
                 id='main_page',
                 children=[
@@ -55,7 +60,7 @@ app.layout = html.Div(
      Input("FixedOrPropor", "value"),
      Input("seed", "value"),])
 def get_rep_strat_data(CallOrPut, S, K, Rf,T,mu,vol,dt,dt_p, TransactionCosts, FixedOrPropor, seed):
-    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t = RepStrat_EU_Option_BSM_GBM_V5(CallOrPut, S, K, Rf, T, mu, vol, dt, dt_p, TransactionCosts, FixedOrPropor, seed)          
+    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t = RepStrat_EU_Option_BSM_GBM(CallOrPut, S, K, Rf, T, mu, vol, dt, dt_p, TransactionCosts, FixedOrPropor, seed)          
     return dt, K, list(discre_matu), StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t
 
 ## PLOT 1 : REP STRAT + OPTION PRICE + STOCK SIMULATION
