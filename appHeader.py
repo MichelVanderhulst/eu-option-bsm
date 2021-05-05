@@ -27,7 +27,6 @@ def header():
                                               target="_blank", #open link in new tab
                                               style={"margin-left":"10px"}
                                               ),
-
                                        html.Div(children=[html.H5("European option replication strategy app"),
                                                           html.H6("Black-Scholes-Merton model")
                                                           ],
@@ -44,7 +43,6 @@ def header():
                                                                        target="popover-target"),
                                                           ],
                                                  style={"display":"inline-block","font-family":"sans-serif","marginLeft":"53%", "margin-right":"10px"}),
-
                                      html.A(id="nova-logo",
                                             children=[html.Img(style={"height":"9%","width":"9%"}, src="data:image/png;base64,{}".format(base64.b64encode(open(f"{logo2path}","rb").read()).decode()))],
                                             href=f"{logo2URL}",
