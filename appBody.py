@@ -41,10 +41,10 @@ def body():
                                 html.Hr(),
                                 html.H4("Type of options", style={"text-align":"center"}),
                                 html.P([
-                              		"""
-                              		The considered options are European options paying \(\psi(S_T)\) at maturity \(T\) where \(\psi(X)\) is the payoff function.
-                              		For a call, the payoff function is \(\psi(S_T)=max(0,S_T-K)\) and for a put \(\psi(S_T)=max(0,K-S_T)\) where K is the strike price.
-                              		"""]),
+                                  """
+                                  The considered options are European options paying \(\psi(S_T)\) at maturity \(T\) where \(\psi(X)\) is the payoff function.
+                                  For a call, the payoff function is \(\psi(S_T)=max(0,S_T-K)\) and for a put \(\psi(S_T)=max(0,K-S_T)\) where K is the strike price.
+                                  """]),
                                 html.Hr(),
                                 html.P(
                                     """
@@ -151,12 +151,12 @@ def body():
                               """]),
                             dbc.Button("Show me the table", id="bsm-table-target", color="primary", className="mr-1",),
                             dbc.Popover(children=[dbc.PopoverHeader("delta-hedging strategy table"),
-                                  dbc.PopoverBody([html.Img(src="data:image/png;base64,{}".format(base64.b64encode(open("./pictures/bsm-math.png",'rb').read()).decode()), style={"width": "250%"})]),
-                                 ],
-                             id="bsm-table",
-                             is_open=False,
-                           target="bsm-table-target",),
-                            ])]),
+                                                  dbc.PopoverBody([html.Img(src="data:image/png;base64,{}".format(base64.b64encode(open("./pictures/bsm-math.png",'rb').read()).decode()), style={"width": "250%"})]),
+                                                  ],
+                                        id="bsm-table",
+                                        is_open=False,
+                                        target="bsm-table-target",),
+                                       ])]),
                       #
                       #
                         dcc.Tab(
@@ -239,16 +239,22 @@ def body():
                                         ),  
 
                           #
-                          html.Label(children=[dcc.Checklist(id = "seed",
-                                                   options=[{'label': 'New Brownian motion', 'value': "seed"}],
-                                                   value=[], 
-                                                   labelStyle={'font-weight': 'bold', "text-align":"left", 'display': 'inline-block'}
-                                                   )], 
+                          html.Label(children=[dbc.Button("Change stock trajectory", id="ButtonChangeStockTrajectory", color="primary", className="mr-1",)],
                                      title=list_input["Seed"]),
+                          html.Div(children=[html.Label("The current stock trajectory scenario is: ", style={'display': 'inline-block', "padding":5}),
+                                             dcc.Input(id='seed', readOnly=False, debounce=True, value='1', min=1,max=500000, type='number',  style={"width":"20%", 'display': 'inline-block'})
+                                             ]      #stockScenario
+                                  ),                          
+
+                          # html.Label(children=[dcc.Checklist(id = "seed",
+                          #                          options=[{'label': 'New Brownian motion', 'value': "seed"}],
+                          #                          value=[], 
+                          #                          labelStyle={'font-weight': 'bold', "text-align":"left", 'display': 'inline-block'}
+                          #                          )], 
+                          #            title=list_input["Seed"]),
                           #
                           html.Br(),
                           html.A('Download Data', id='download-link', download="rawdata.csv", href="", target="_blank"),
-                          html.P("""Note: requires excel decimal separator to be a dot.""", style={"font-size":12}),
 
                           ])),
     ],),], style={'float': 'left', 'width': '25%', 'margin':"30px"}),

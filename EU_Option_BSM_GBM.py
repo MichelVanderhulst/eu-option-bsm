@@ -90,13 +90,19 @@ def RepStrat_EU_Option_BSM_GBM(CallOrPut, S,K,Rf,T,mu,vol,dt,RebalancingSteps, T
         TransactionCosts = TransactionCosts / 100
 
     # seed is always fixed
-    np.random.seed(1)
-    # unless user wants new seed everytime
-    if seed == ["seed"]:
+    b = seed
+    if type(b) is list:
+        b=b[0]
+    else:
+        np.random.seed(b)
+
+    # unless user wants new seed
+    if seed == ["RandomSeed"]:
         np.random.seed(None)
-        a = np.random.randint(low=2, high=500000)
-        np.random.seed(a)
-        np.random.seed(np.random.randint(low=2, high=500000))
+        b = np.random.randint(low=1, high=500000)
+        np.random.seed(b)
+        # np.random.seed(np.random.randint(low=2, high=500000))
+
     
 
     ####### Discretization of maturity period
@@ -199,6 +205,6 @@ def RepStrat_EU_Option_BSM_GBM(CallOrPut, S,K,Rf,T,mu,vol,dt,RebalancingSteps, T
     ####################################################################################################################
 
 
-    return dt, K, a, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, EquityAccount+CashAccount, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t
+    return dt, K, a, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, EquityAccount+CashAccount, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, b
 
 

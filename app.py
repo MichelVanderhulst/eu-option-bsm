@@ -24,9 +24,9 @@ import urllib.parse
 ####################################################################
 ################## CREATING THE APP ################################ 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], #modern-looking buttons, sliders, etc
-	                      external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML', "./assets/mathjax.js"], #LaTeX in app
-	                      meta_tags=[{"content": "width=device-width"}] # app width adapts itself to the user device
-	                      )
+                          external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML', "./assets/mathjax.js"], #LaTeX in app
+                          meta_tags=[{"content": "width=device-width"}] # app width adapts itself to the user device
+                          )
 server = app.server
 
 # building the app layout from header, body & graphs
@@ -58,17 +58,37 @@ app.layout = html.Div(
      Input("dt_p", "value"),
      Input("TransactionCosts", "value"),
      Input("FixedOrPropor", "value"),
-     Input("seed", "value"),])
-def get_rep_strat_data(CallOrPut, S, K, Rf,T,mu,vol,dt,dt_p, TransactionCosts, FixedOrPropor, seed):
-    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t = RepStrat_EU_Option_BSM_GBM(CallOrPut, S, K, Rf, T, mu, vol, dt, dt_p, TransactionCosts, FixedOrPropor, seed)          
-    return dt, K, list(discre_matu), StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t
+     # Input("seed", "value"),
+     Input("seed", "value"),
+     Input('ButtonChangeStockTrajectory', 'n_clicks'),
+     # Input("stockScenario", "value")
+     ])
+def get_rep_strat_data(CallOrPut, S, K, Rf,T,mu,vol,dt,dt_p, TransactionCosts, FixedOrPropor, seed, n_clicks):#, stockScenario):
+    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+    if 'ButtonChangeStockTrajectory' in changed_id:
+        seed=["RandomSeed"]
+    else:
+        # seed=stockScenario if type(stockScenario)==int else 1
+        seed = seed if type(seed)==int else 1
+    
+    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed = RepStrat_EU_Option_BSM_GBM(CallOrPut, S, K, Rf, T, mu, vol, dt, dt_p, TransactionCosts, FixedOrPropor, seed)          
+    return dt, K, list(discre_matu), StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed
+
+
+                    #stockScenario
+@app.callback(Output('seed', 'value'),
+              [Input('memory-output', 'data')])
+def display_value_mu(data):
+    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed = data
+    return seed
+
 
 ## PLOT 1 : REP STRAT + OPTION PRICE + STOCK SIMULATION
 @app.callback(
     Output('replication', 'figure'),
     [Input('memory-output', 'data'),])
 def graph_rep_strat(data):
-    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t = data
+    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed = data
 
     return{
     'data': [
@@ -140,7 +160,7 @@ def graph_rep_strat(data):
     Output('port_details', 'figure'),
     [Input('memory-output', 'data'),])
 def graph_portf_details(data):
-    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t = data
+    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed = data
     return{
     'data': [
         go.Scatter(
@@ -183,7 +203,7 @@ def graph_portf_details(data):
     Output('held_shares', 'figure'),
     [Input('memory-output', 'data'),])
 def graph_portf_details(data):
-    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t = data
+    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed= data
     return{
     'data': [
         go.Scatter(
@@ -212,7 +232,7 @@ def graph_portf_details(data):
     Output('sde_deriv', 'figure'),
     [Input('memory-output', 'data'),])
 def graph_portf_details(data):
-    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t = data
+    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed = data
     return{
     'data': [
         go.Scatter(
@@ -340,7 +360,7 @@ def display_unit_TC(value):
 @app.callback(Output('download-link', 'href'), 
              [Input('memory-output', 'data')])
 def update_download_link(data):
-    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t = data
+    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed = data
     cash_bfr, cash_aft, equi_bfr, equi_aft, t = np.array(cash_bfr), np.array(cash_aft), np.array(equi_bfr), np.array(equi_aft), np.array(t)
 
     df = pd.DataFrame({"Time (in dt)":t,"Stock price":StockPrice, "Option intrinsic value":OptionIntrinsicValue, "Option price":OptionPrice,
