@@ -179,13 +179,13 @@ def body():
                             html.Br(),
                             #
                             html.Div(children=[html.Label('Spot price', title=list_input["Spot price"], style={'font-weight': 'bold', "text-align":"left", "width":"25%",'display': 'inline-block'} ),
-                                               dcc.Input(id="S", value=100, type='number', style={"width":"16%", 'display': 'inline-block'}),
+                                               dcc.Input(id="S", value=100, debounce=True, type='number', style={"width":"16%", 'display': 'inline-block'}),
                                                html.P("",id="message_S", style={"font-size":12, "color":"red", "padding":5, 'width': '55%', "text-align":"left", 'display': 'inline-block'})
                                               ]
                                     ),
 
                             html.Div(children=[html.Label("Strike", title=list_input["Strike"], style={'font-weight': 'bold',"text-align":"left", "width":"25%",'display': 'inline-block'} ),
-                                               dcc.Input(id="K", value=100, type='number', style={"width":"16%", 'display': 'inline-block'}),
+                                               dcc.Input(id="K", value=100, debounce=True, type='number', style={"width":"16%", 'display': 'inline-block'}),
                                                html.P("",id="message_K", style={"font-size":12, "color":"red", "padding":5, 'width': '55%', "text-align":"left", 'display': 'inline-block'})
                                               ],
                                     ),               
@@ -214,18 +214,18 @@ def body():
                           html.Br(),
                           html.Div([
                                   html.Label('Discretization step', title=list_input["Discretization step"], style={'font-weight': 'bold', "text-align":"left",'width': '50%', 'display': 'inline-block'}),
-                                  dcc.Input(id="dt", value=0.01, type='number', style={"width":"16%", 'display': 'inline-block'}),
+                                  dcc.Input(id="dt", value=0.01,debounce=True,  type='number', style={"width":"16%", 'display': 'inline-block'}),
                                   html.P("",id="message_dt", style={"font-size":12, "color":"red", 'width': '34%', "text-align":"left", 'display': 'inline-block'})
                                   ]),
                             #                     
                           html.Div([
                                   html.Label("Time between two rebalancing (in dt unit)", title=list_input["Rebalancing frequency"], style={'font-weight': 'bold', 'width': '50%', "text-align":"left", 'display': 'inline-block'}),
-                                  dcc.Input(id="dt_p", value=1, type='number', style={"width":"16%", 'display': 'inline-block'}),
+                                  dcc.Input(id="dt_p", value=1, debounce=True, type='number', style={"width":"16%", 'display': 'inline-block'}),
                                   html.P("",id="message_dt_p", style={"font-size":12, "color":"red", 'width': '34%', "text-align":"left", 'display': 'inline-block'})
                                   ]),
                             #
                           html.Div([html.Label('Transaction costs', title=list_input["Transaction costs"], style={'font-weight': 'bold', "text-align":"left",'width': '50%', 'display': 'inline-block'}),
-                                    dcc.Input(id="TransactionCosts", value=0, type='number', style={"width":"16%", 'display': 'inline-block'}),
+                                    dcc.Input(id="TransactionCosts", value=0, debounce=True, type='number', style={"width":"16%", 'display': 'inline-block'}),
                                     html.Label(id="unit_TC", style={"padding":5, "display":"inline-block"})
                               ]),
                           #
