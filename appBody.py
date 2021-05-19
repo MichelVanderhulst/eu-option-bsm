@@ -200,7 +200,7 @@ def body():
                           html.Div([html.Label('Volatility', title=list_input["Volatility"], style={'font-weight': 'bold', "display":"inline-block"}),
                                     html.Label(id="sigma", style={"display":"inline-block"}),]),  
                           #
-                          dcc.Slider(id='vol', min=0, max=1, step=0.01, value=0.25, marks={0:"0%", 0.25:"25%",  0.50:"50%"}),
+                          dcc.Slider(id='vol', min=0, max=0.50, step=0.01, value=0.25, marks={0:"0%", 0.25:"25%",  0.50:"50%"}),
                             #
                             html.Div([html.Label('Risk-free rate', title=list_input["Risk-free rate"], style={'font-weight': 'bold', "display":"inline-block"}),
                                       html.Label(id="riskfree", style={"display":"inline-block"}),]),  
