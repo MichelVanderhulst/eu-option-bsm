@@ -39,6 +39,6 @@ list_input = {"-": "-",
                                    " the Black-Scholes model assumptions, where transactions costs are null, "
                                    "considering them will decrease the quality of the replication strategy. If left empty, it is assumed null.",
               "Seed": "The simulations are based on a random number generation. Currently, the generation is fixed, ie the Brownian motion behind"
-                     " the stock random dynamics is fixed, therefore allowing for sensitivity analysis. Checking this will generate a new Brownian motion every time you change an input."
+                     " the stock random dynamics is fixed, therefore allowing for sensitivity analysis. Clicking on this button will generate a new Brownian motion, thus changing the stoch trajectory."
               }
 #test

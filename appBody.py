@@ -167,7 +167,7 @@ def body():
                                       #
                                       html.P(
                                             """
-                                            Place your mouse over any input to get its definition. Refer to "New Brownian motion" if you wish to have a random seed.
+                                            Place your mouse over any input to get its definition. 
                                             """
                                              ),
                                       dcc.Dropdown(id='CallOrPut',
@@ -195,21 +195,21 @@ def body():
                                              ]
                                   ),
                           #
-                          dcc.Slider(id='mu', min=-0.40, max=0.40, value=0.10, step=0.01, marks={-0.40: '-40%', 0.40: '40%'}),
+                          dcc.Slider(id='mu', min=-0.40, max=0.40, value=0.10, step=0.01, marks={-0.40: '-40%', 0:"0%",  0.40: '40%'}),
                           #
                           html.Div([html.Label('Volatility', title=list_input["Volatility"], style={'font-weight': 'bold', "display":"inline-block"}),
                                     html.Label(id="sigma", style={"display":"inline-block"}),]),  
                           #
-                          dcc.Slider(id='vol', min=0, max=1, step=0.01, value=0.20, marks={0:"0%", 1:"100%"}),
+                          dcc.Slider(id='vol', min=0, max=1, step=0.01, value=0.25, marks={0:"0%", 0.25:"25%",  0.50:"50%"}),
                             #
                             html.Div([html.Label('Risk-free rate', title=list_input["Risk-free rate"], style={'font-weight': 'bold', "display":"inline-block"}),
                                       html.Label(id="riskfree", style={"display":"inline-block"}),]),  
-                          dcc.Slider(id='Rf', min=0, max=0.1, step=0.01, value=0.03, marks={0:"0%", 0.1:"10%"}),
+                          dcc.Slider(id='Rf', min=0, max=0.1, step=0.01, value=0.03, marks={0:"0%", 0.05:"5%", 0.1:"10%"}),
                           #
                           html.Div([html.Label('Maturity', title=list_input["Maturity"], style={'font-weight':'bold', "display":"inline-block"}),
                                     html.Label(id="matu", style={"display":"inline-block"}),]),                    
                           dcc.Slider(id='T', min=0.25, max=5, # marks={i: '{}'.format(i) for i in range(6)},
-                                     marks={0.25:"3 months", 5:"5 years"}, step=0.25, value=3),
+                                     marks={0.25:"3 months", 3:"3 years", 5:"5 years"}, step=0.25, value=3),
                           #
                           html.Br(),
                           html.Div([
