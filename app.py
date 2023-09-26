@@ -71,15 +71,15 @@ def get_rep_strat_data(CallOrPut, S, K, Rf,T,mu,vol,dt,dt_p, TransactionCosts, F
         # seed=stockScenario if type(stockScenario)==int else 1
         seed = seed if type(seed)==int else 1
     
-    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed = RepStrat_EU_Option_BSM_GBM(CallOrPut, S, K, Rf, T, mu, vol, dt, dt_p, TransactionCosts, FixedOrPropor, seed)          
-    return dt, K, list(discre_matu), StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed
+    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed, f_x_plots = RepStrat_EU_Option_BSM_GBM(CallOrPut, S, K, Rf, T, mu, vol, dt, dt_p, TransactionCosts, FixedOrPropor, seed)          
+    return dt, K, list(discre_matu), StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed, f_x_plots
 
 
                     #stockScenario
 @app.callback(Output('seed', 'value'),
               [Input('memory-output', 'data')])
 def display_value_mu(data):
-    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed = data
+    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed, f_x_plots = data
     return seed
 
 
@@ -88,7 +88,7 @@ def display_value_mu(data):
     Output('replication', 'figure'),
     [Input('memory-output', 'data'),])
 def graph_rep_strat(data):
-    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed = data
+    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed, f_x_plots = data
 
     return{
     'data': [
@@ -160,7 +160,7 @@ def graph_rep_strat(data):
     Output('port_details', 'figure'),
     [Input('memory-output', 'data'),])
 def graph_portf_details(data):
-    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed = data
+    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed, f_x_plots = data
     return{
     'data': [
         go.Scatter(
@@ -203,7 +203,7 @@ def graph_portf_details(data):
     Output('held_shares', 'figure'),
     [Input('memory-output', 'data'),])
 def graph_portf_details(data):
-    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed= data
+    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed, f_x_plots= data
     return{
     'data': [
         go.Scatter(
@@ -232,12 +232,12 @@ def graph_portf_details(data):
     Output('sde_deriv', 'figure'),
     [Input('memory-output', 'data'),])
 def graph_portf_details(data):
-    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed = data
+    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed, f_x_plots = data
     return{
     'data': [
         go.Scatter(
             x=discre_matu,
-            y=f_x,
+            y=f_x_plots,
             mode='lines',
             line={'dash': 'solid', 'color': 'light blue'},
             opacity=0.7,
@@ -360,7 +360,7 @@ def display_unit_TC(value):
 @app.callback(Output('download-link', 'href'), 
              [Input('memory-output', 'data')])
 def update_download_link(data):
-    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed = data
+    dt, K, discre_matu, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, Portfolio, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, seed, f_x_plots = data
     cash_bfr, cash_aft, equi_bfr, equi_aft, t = np.array(cash_bfr), np.array(cash_aft), np.array(equi_bfr), np.array(equi_aft), np.array(t)
 
     df = pd.DataFrame({"Time (in dt)":t,"Stock price":StockPrice, "Option intrinsic value":OptionIntrinsicValue, "Option price":OptionPrice,

@@ -126,9 +126,9 @@ def RepStrat_EU_Option_BSM_GBM(CallOrPut, S,K,Rf,T,mu,vol,dt,RebalancingSteps, T
 
     ####################################################################################################################
     #####################                  START accounts initialization                           #####################
-    f_xx, f_t, f_x, V_t, CashAccount, EquityAccount, StockPrice, OptionIntrinsicValue, OptionPrice, BrownianMotion = \
+    f_xx, f_t, f_x, V_t, CashAccount, EquityAccount, StockPrice, OptionIntrinsicValue, OptionPrice, BrownianMotion, f_x_plots = \
         np.zeros(nt), np.zeros(nt), np.zeros(nt), np.zeros(nt), np.zeros(nt), np.zeros(nt), np.zeros(nt), np.zeros(nt),\
-        np.zeros(nt), np.zeros(nt)
+        np.zeros(nt), np.zeros(nt), np.zeros(nt)
     dW = np.sqrt(dt) * np.random.randn(nt - 1)  # Increments of Brownian Motion
 
     cash_bfr, cash_aft, equi_bfr, equi_aft = np.zeros(nt), np.zeros(nt), np.zeros(nt), np.zeros(nt)
@@ -143,6 +143,7 @@ def RepStrat_EU_Option_BSM_GBM(CallOrPut, S,K,Rf,T,mu,vol,dt,RebalancingSteps, T
     OptionPrice[0] = p_bs(S, K, Rf, T, t[0], vol, phi)
     BrownianMotion[0] = 0
     f_x[0] = Delta(StockPrice[0], K, Rf, T, t_rebal[0], vol, phi)  # putcall parity! -delta(-d1) = delta(d1) - 1
+    f_x_plots[0] = Delta(StockPrice[0], K, Rf, T, t_rebal[0], vol, phi)
     CashAccount[0] = OptionPrice[0] - f_x[0] * S - abs(f_x[0]) * (Fixed * TransactionCosts + StockPrice[0] * Propor * TransactionCosts)
     EquityAccount[0] = f_x[0] * S
 
@@ -165,46 +166,36 @@ def RepStrat_EU_Option_BSM_GBM(CallOrPut, S,K,Rf,T,mu,vol,dt,RebalancingSteps, T
         OptionIntrinsicValue[i] = max(0, phi * (StockPrice[i] - K))
         OptionPrice[i] = p_bs(StockPrice[i], K, Rf, T, t[i], vol, phi)
 
+         # accrued interest on CashAccount & Updating EquityAccount to stock price evolution
+        CashAccount[i] = CashAccount[i - 1] * (1 + Rf * dt)
+        EquityAccount[i] = f_x[i - 1] * StockPrice[i]
+        cash_bfr[i], equi_bfr[i] = CashAccount[i], EquityAccount[i]
+
+        f_x_plots[i] = Delta(StockPrice[i], K, Rf, T, t[i], vol, phi)
+        f_xx[i] = Gamma(StockPrice[i], K, Rf, T, t[i], vol)
+        f_t[i] = Theta(StockPrice[i], K, Rf, T, t[i], vol, phi)
+        V_t[i] = V_t[i - 1] + (f_t[i - 1] + mu * StockPrice[i - 1] * f_x[i - 1] + 0.5 * (vol * vol) * (StockPrice[i - 1] * StockPrice[i - 1]) * f_xx[i - 1]) * dt + vol * StockPrice[i - 1] * f_x[i - 1] * dW[i - 1]
+
         ####### Replication strategy
         # Portfolio is rebalanced every Rebalancing Step, so in order to recognize them we take the modulus of i, the
         # discretization step, and if it is equal to zero then i is an rebalancing step:
         if i % RebalancingSteps == 0:
-            ####### Before rebalancing
-            # accrued interest on CashAccount & Updating EquityAccount to stock price evolution
-            CashAccount[i] = CashAccount[i - 1] * (1 + Rf * dt_rebal)
-            EquityAccount[i] = f_x[i - 1] * StockPrice[i]
-
-            cash_bfr[i], equi_bfr[i] = CashAccount[i], EquityAccount[i]
-
-            ####### After reblancing
+            ####### Rebalancing
             # computing delta (# of shares to hold at this time t), ensuring equivalence of portfolio and selling/buying
             # shares to get delta and updating EquityAccount value with current Delta
             f_x[i] = Delta(StockPrice[i], K, Rf, T, t_rebal[int(i/RebalancingSteps)], vol, phi)
             CashAccount[i] = CashAccount[i] + EquityAccount[i] - f_x[i] * StockPrice[i] - abs(f_x[i] - f_x[i - 1]) * (Fixed * TransactionCosts + StockPrice[i] * Propor * TransactionCosts)
             EquityAccount[i] = f_x[i] * StockPrice[i]
 
-            cash_aft[i], equi_aft[i] = CashAccount[i], EquityAccount[i]
-
-
-            f_xx[i] = Gamma(StockPrice[i], K, Rf, T, t_rebal[int(i / RebalancingSteps)], vol)
-            f_t[i] = Theta(StockPrice[i], K, Rf, T, t_rebal[int(i / RebalancingSteps)], vol, phi)
-            V_t[i] = V_t[i - 1] + (f_t[i - 1] + mu * StockPrice[i - 1] * f_x[i - 1] + 0.5 * (vol * vol) * (StockPrice[i - 1] * StockPrice[i - 1]) * f_xx[i - 1]) * dt_rebal + vol * StockPrice[i - 1] * f_x[i - 1] * dW[i - 1]
-
         # not a rebalancing step
         else:
             f_x[i] = f_x[i - 1]
-            CashAccount[i] = CashAccount[i - 1]
-            EquityAccount[i] = EquityAccount[i - 1]
 
-            f_xx[i] = f_xx[i - 1]
-            f_t[i] = f_t[i - 1]
-            V_t[i] = V_t[i - 1]
-
-            cash_bfr[i], cash_aft[i], equi_bfr[i], equi_aft[i] = cash_bfr[i-1], cash_aft[i-1], equi_bfr[i-1], equi_aft[i-1]
+        cash_aft[i], equi_aft[i] = CashAccount[i], EquityAccount[i]
     #####################                  END replication strategy                                #####################
     ####################################################################################################################
 
 
-    return dt, K, a, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, EquityAccount+CashAccount, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, b
+    return dt, K, a, StockPrice, OptionIntrinsicValue, OptionPrice, EquityAccount, CashAccount, EquityAccount+CashAccount, V_t, f_t, f_x, f_xx, cash_bfr, cash_aft, equi_bfr, equi_aft, t, b, f_x_plots
 
 
